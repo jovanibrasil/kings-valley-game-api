@@ -1,0 +1,7 @@
+/Main$DIR.class
+/Main$PieceTypes.class
+/Main.class
+*.project
+*.classpath
+/bin
+.settings/
