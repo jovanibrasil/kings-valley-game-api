@@ -1,7 +1,7 @@
 package game;
 
 import enums.Direcao;
-import enums.EstadoPartida;
+import enums.EstadosPartida;
 
 public class KingsValleyGame {
 
@@ -17,34 +17,56 @@ public class KingsValleyGame {
 	 *  	"k" rei claro (king)
 	 * 		"K" rei escuro (King) 
 	 */
-	private char[] board = { 's', '-', '-', '-', 'S', // 0 - 4 
-			's', '-', '-', '-', 'S', // 5 - 9
-			'k', '-', '-', '-', 'K', // 10 - 14
-			's', '-', '-', '-', 'S', // 15 - 19
-			's', '-', '-', '-', 'S'  }; // 20 - 24
-				;
-	
+	private char[] board;
+				
     private int player1Id, player2Id;
     //private boolean player1Status, player2Status;
     
-    private EstadoPartida estadoPartida;
-    private int tempo;
+    private EstadosPartida estadoPartida;
     
+    private int tempoAguardandoInicio; // tempo entre inicialização e entrada do segundo jogador 
+    private int tempoDesdeUltimaJogada; // tempo desde a última jogada
+    private int tempoDesdeEncerramento; // tempo desde o encerramento
+        
     private boolean firstPlay;
     private int onMovePlayer; // The player that is on move
     private int king1Pos, king2Pos; // King position, use for test routines
     
-    public void incrementaTempo() {
-    	this.tempo++;
-    }
-    
 	public KingsValleyGame() {
+		this.board = new char[25];
 		setUpGame();
 	}
 	
-	public void restartKingsValleyGame() {
+	public void limpaPartida() {
 		setUpGame();
 	}
+	
+	private void setUpGame() {
+		initBoard();
+		
+		this.tempoAguardandoInicio = 0; 
+    	this.tempoDesdeUltimaJogada = 0; 
+    	this.tempoDesdeEncerramento = 0; 
+		
+		this.firstPlay = true;
+		this.player1Id = -1;
+		this.player2Id = -1;
+		this.king1Pos = 10;
+		this.king2Pos = 14;
+		this.estadoPartida = EstadosPartida.Vazia;
+	}
+	
+	/**
+	 *	Set default board configuration 
+	 */
+	private void initBoard() {
+		this.board = new char[] { 's', '-', '-', '-', 'S', // 0 - 4 
+				's', '-', '-', '-', 'S', // 5 - 9
+				'k', '-', '-', '-', 'K', // 10 - 14
+				's', '-', '-', '-', 'S', // 15 - 19
+				's', '-', '-', '-', 'S'  }; // 20 - 24
+	}
+	
 	
 	public String obtemTabuleiro() {
 		// should I send a string or a vector?
@@ -59,8 +81,8 @@ public class KingsValleyGame {
 	}
 	
 	private boolean ehMinhaPeca(int id, int pos) {
-//		System.out.println("Player id="+id+" deseja mover " + board[pos]);
-//		System.out.println(this.player1Id);
+		// System.out.println("Player id="+id+" deseja mover " + board[pos]);
+		// System.out.println(this.player1Id);
 		if(id == this.player1Id) {
 			if(board[pos] == 'k' || board[pos] == 's') {
 		//		System.out.println("	player 1");
@@ -68,7 +90,7 @@ public class KingsValleyGame {
 			}
 		}else if(id == this.player2Id) {
 			if(board[pos] == 'K' || board[pos] == 'S') {
-			//	System.out.println("	player 2");
+				//	System.out.println("	player 2");
 				return true;
 			}
 		}
@@ -92,7 +114,6 @@ public class KingsValleyGame {
 	}
 	
 	private boolean win(int playerId) { // vitória
-		
 		// meu  rei atingiu o meio
 		if(this.board[9] == getKingChar(playerId))
 			return true;
@@ -116,8 +137,7 @@ public class KingsValleyGame {
 
 	private boolean tie(int id) { // empate
 		if(!hasValidMove(id) && !hasValidMove(getOponentId(id)))
-			return true;
-			
+			return true;		
 		return false;
 	}
 	
@@ -144,25 +164,6 @@ public class KingsValleyGame {
 			return 'K';
 		}
 	}
-	
-	private void setUpGame() {
-		initBoard();
-		this.tempo = 0;
-		this.firstPlay = true;
-		this.player1Id = -1;
-		this.player2Id = -1;
-		this.king1Pos = 10;
-		this.king2Pos = 14;
-		this.estadoPartida = EstadoPartida.Aguardando;
-	}
-	
-	/**
-	 *	Set default board configuration 
-	 */
-	private void initBoard() {
-		// TODO
-	}
-
 
 	private int verificaPosicao(int idx, int dir) {
 	
@@ -220,12 +221,12 @@ public class KingsValleyGame {
     
 	public void setPlayer2(int player2Id) {
 		this.player2Id = player2Id;
-		this.estadoPartida = EstadoPartida.EmJogo;
+		this.estadoPartida = EstadosPartida.EmJogo;
 	}
 	
 	public int encerraPartida(int playerId) {
 		
-		this.estadoPartida = EstadoPartida.Encerrada;
+		this.estadoPartida = EstadosPartida.Encerrada;
 		
 		if(playerId == player1Id)
     		this.player1Id = -3;
@@ -434,7 +435,62 @@ public class KingsValleyGame {
 		else
 			this.onMovePlayer = this.player1Id;
 		
+		// TODO jogadas inválidas valem para restart do contador?
+		this.tempoDesdeUltimaJogada = 0;
+		
 		return 1;
 	}
+	
+	public boolean emJogo() {
+		return this.estadoPartida == EstadosPartida.EmJogo;
+	}
+	
+	public boolean aguardandoJogador() {
+		return this.estadoPartida == EstadosPartida.AguardandoJogador;
+	}
+	
+	public boolean partidaEncerrada() {
+		return this.estadoPartida == EstadosPartida.Encerrada;
+	}
+	
+	
+	/*
+     * Atualiza temporizadores e a variável que denota o estado da partida. 
+     * 
+     * As restrições temporáis para modificação da variável de estado são as seguintes:
+	 * 		2 minutos (120 segundos) pelo registro do segundo jogador; 
+	 * 		60 segundos pelas jogadas de cada jogador; 
+	 * 		60 segundos para “destruir” a partida depois de definido o vencedor.	 
+     */
+    public void atualizaRestricoesTemporais() {
+    	if(this.estadoPartida == EstadosPartida.AguardandoJogador) {
+    		this.tempoAguardandoInicio++; // tempo entre inicialização e entrada do segundo jogador
+    		if(tempoAguardandoInicio == 120)
+    			this.estadoPartida = EstadosPartida.Encerrada;
+    	}else if(this.estadoPartida == EstadosPartida.EmJogo){
+    		this.tempoDesdeUltimaJogada++; // tempo desde a última jogada
+    		if(this.tempoDesdeUltimaJogada == 60)
+    			this.estadoPartida = EstadosPartida.Encerrada;	
+    	}else if(this.estadoPartida == EstadosPartida.Encerrada){
+    		this.tempoDesdeEncerramento++; // tempo desde o encerramento
+    		if(this.tempoDesdeEncerramento == 60)
+        		this.estadoPartida = EstadosPartida.AguardandoDestruicao;
+    	}else if(this.estadoPartida == EstadosPartida.Vazia){
+    		// TODO Hello empty room!
+    	}else {
+    		System.out.println("Erro na atualização dos temporizadores!");
+    	}
+    }
+    
+    /*
+     * Verifica se a partida é "destruível", ou seja, se a partida pode ser os dados
+     * da partida podem ser zerados e a partida liberada para outros jogadores.
+     * 
+     * */
+    public boolean ehDestruivel() {
+    	if(EstadosPartida.AguardandoDestruicao == this.estadoPartida)
+    		return true;
+    	return false;
+    }
 	
 }
