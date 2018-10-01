@@ -1,5 +1,5 @@
 package enums;
 
-public enum EstadosPartida {
+public enum EstadoPartida {
 	Vazia, AguardandoJogador, EmJogo, Encerrada, AguardandoDestruicao
 }

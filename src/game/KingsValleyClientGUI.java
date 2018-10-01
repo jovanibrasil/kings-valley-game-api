@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,28 +24,31 @@ import javax.swing.JLabel;
  */
 public class KingsValleyClientGUI extends JFrame {
 
-    private JButton[] button;
-    private JButton button1;
-    private JLabel jogador1;
-    private JLabel jogador2;
-    private JLabel Lpnt1;
-    private JLabel Lpnt2;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JButton[] button;
+    private JButton btnEncerrarPartida;
+    private JLabel lblTxtVirorias;
+    private JLabel lblTxtDerrotas;
+    private JLabel lblValueVitorias;
+    private JLabel lblValueDerrotas;
     private int quemJoga = 0;
     private int pnt1 = 0;
     private int pnt2 = 0;
-    private JLabel guia;
-    private JLabel copyright;
+    private JLabel lblStatusPartida;
 
     public void acao(int bnt) {
         String XO;
         if (quemJoga == 0) {
             XO = "X";
             quemJoga = 1;
-            guia.setText("Vez do Jogador 2");
+            lblStatusPartida.setText("Vez do Jogador 2");
         } else {
             XO = "O";
             quemJoga = 0;
-            guia.setText("Vez do Jogador 1");
+            lblStatusPartida.setText("Vez do Jogador 1");
 
         }
         button[bnt].setText(XO);
@@ -130,8 +135,8 @@ public class KingsValleyClientGUI extends JFrame {
         for (int i = 0; i < 9; i++) {
             button[i].setEnabled(false);
         }
-        button1.setVisible(true);
-        guia.setText("Deu Velha");
+        btnEncerrarPartida.setVisible(true);
+        lblStatusPartida.setText("Deu Velha");
     }
 
     public void ganhou(String XO) {
@@ -146,70 +151,71 @@ public class KingsValleyClientGUI extends JFrame {
             texto = "Jogador 2 Venceu";
             pnt2++;
         }
-        Lpnt1.setText(Integer.toString(pnt1));
-        Lpnt2.setText(Integer.toString(pnt2));
-        button1.setVisible(true);
-        guia.setText(texto);
+        lblValueVitorias.setText(Integer.toString(pnt1));
+        lblValueDerrotas.setText(Integer.toString(pnt2));
+        btnEncerrarPartida.setVisible(true);
+        lblStatusPartida.setText(texto);
     }
 
     public void newGame() {
-        button1.setVisible(false);
-        guia.setText("Vez do Jogador 1");
+        btnEncerrarPartida.setVisible(false);
+        lblStatusPartida.setText("Vez do Jogador 1");
         quemJoga = 0;
         for (int i = 0; i < 9; i++) {
             button[i].setText("   ");
-            button[i].setBackground(button1.getBackground());
+            button[i].setBackground(btnEncerrarPartida.getBackground());
             button[i].setEnabled(true);
         }
     }
 
     public KingsValleyClientGUI() {
         super();
-        setTitle("Jogo da Velha");
+        setResizable(false);
+        setTitle("KingsValleyClientGUI");
         Toolkit tk = Toolkit.getDefaultToolkit();
         Dimension d = tk.getScreenSize();
         Box editBox = Box.createVerticalBox();
-        Box[] box = new Box[8];
-        button = new JButton[9];
-        guia = new JLabel("Vez do Jogador 1");
-        copyright = new JLabel("by PCollares");
-
-        for (int i = 0; i < 8; i++) {
+        Box[] box = new Box[9];
+        button = new JButton[25];
+        
+        lblStatusPartida = new JLabel("[Msg] Status da partida ...");
+        btnEncerrarPartida = new JButton("EncerrarPartida");
+        btnEncerrarPartida.setVisible(true);
+        lblTxtVirorias = new JLabel("Vitorias: ");
+        lblTxtDerrotas = new JLabel("Derrotas: ");
+        lblValueVitorias = new JLabel("0");
+        lblValueDerrotas = new JLabel("0");
+        
+        for (int i = 0; i < 9; i++) {
             box[i] = Box.createHorizontalBox();
         }
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 25; i++) {
             button[i] = new JButton("   ");
+            //button[i].setPreferredSize(new Dimension(100,300) );
+            button[i].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent arg0) {
+                    acao(0);
+                }
+            });
         }
-
-        button1 = new JButton("Novo Jogo");
-        button1.setVisible(false);
-        jogador1 = new JLabel();
-        jogador2 = new JLabel();
-        jogador1.setText("Jogador 1");
-        jogador2.setText("Jogador 2");
-        Lpnt1 = new JLabel();
-        Lpnt2 = new JLabel();
-        Lpnt1.setText("0");
-        Lpnt2.setText("0");
-
-        box[0].add(jogador1);
-        box[0].add(Box.createHorizontalStrut(30));
-        box[0].add(jogador2);
-        box[1].add(Lpnt1);
-        box[1].add(Box.createHorizontalStrut(30));
-        box[1].add(Lpnt2);
-        box[2].add(guia);
-        box[3].add(button[0]);
-        box[3].add(button[1]);
-        box[3].add(button[2]);
-        box[4].add(button[3]);
-        box[4].add(button[4]);
-        box[4].add(button[5]);
-        box[5].add(button[6]);
-        box[5].add(button[7]);
-        box[5].add(button[8]);
-        box[6].add(button1);
-        box[7].add(copyright);
+        
+        box[0].add(lblTxtVirorias);
+        box[0].add(lblValueVitorias);
+        box[0].add(Box.createRigidArea(new Dimension(20, 0)));
+        box[0].add(lblTxtDerrotas);
+        box[0].add(lblValueDerrotas);
+        box[2].add(lblStatusPartida);
+        
+        for(int i=3, j=0; i<8; i++, j+=5) {
+        	box[i].add(button[j]);
+            box[i].add(button[j+1]);
+            box[i].add(button[j+2]);
+            box[i].add(button[j+3]);
+            box[i].add(button[j+4]);
+            //box[i].setSize(40, 80);
+        }
+        
+        box[8].add(btnEncerrarPartida);
 
         editBox.add(box[0]);
         editBox.add(box[1]);
@@ -220,65 +226,23 @@ public class KingsValleyClientGUI extends JFrame {
         editBox.add(box[5]);
         editBox.add(box[6]);
         editBox.add(box[7]);
+        editBox.add(box[8]);
 
         Container container = getContentPane();
-        container.setLayout(new FlowLayout());
+        container.setLayout(new GridBagLayout());
+        
+//        GridBagConstraints c = new GridBagConstraints();
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.gridx = 0;
+//        c.gridy = 0;
+//        c.anchor = GridBagConstraints.PAGE_END; //bottom of space
+//        
         container.add(editBox);
-        setSize(230, 250);
-        setLocation((d.width - 230) / 2, (d.height - 250) / 2);
+        setSize(300, 300);
+        setLocation((d.width - 460) / 2, (d.height - 500) / 2);
         setVisible(true);
 
-        button[0].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(0);
-            }
-        });
-        button[1].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(1);
-            }
-        });
-        button[2].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(2);
-            }
-        });
-        button[3].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(3);
-
-            }
-        });
-        button[4].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(4);
-            }
-        });
-        button[5].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(5);
-            }
-        });
-        button[6].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(6);
-            }
-        });
-        button[7].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(7);
-            }
-        });
-        button[8].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                acao(8);
-            }
-        });
-        button1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                newGame();
-            }
-        });
+        
     }
     
     public static void main(String[] args) {

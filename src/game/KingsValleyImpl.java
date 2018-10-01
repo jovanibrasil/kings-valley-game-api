@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import enums.Direcao;
-import enums.EstadosPartida;
+import enums.EstadoPartida;
 
 /**
  *
@@ -164,11 +164,11 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 				gameId = idsPartidasAguardando.peek();
 				if(partidas[gameId].isEmptyGame()) { // se existe  partida vazia, set player 1
 					System.out.println("Player "+id+" entrou na partida " + gameId + " (nova partida foi criada)");
-					partidas[gameId].setPlayer1(id);		
+					partidas[gameId].setJogador1(id);		
 				}else {	// se existe partida com um player, set player 2
 					System.out.println("Player "+id+" entrou na partida " + gameId + " (partida estava em aguardo)");
 					idsPartidasAguardando.poll(); // tira da fila de tokens de partidas
-					partidas[gameId].setPlayer2(id);
+					partidas[gameId].setJogador2(id);
 				}
 			}
 			indiceUsuarioPartida[id] = gameId;
