@@ -17,8 +17,8 @@ public class KingsValleyGame {
 	 *  	"k" rei claro (king)
 	 * 		"K" rei escuro (King) 
 	 */
-	private char[] board;
-				
+	private Tabuleiro tabuleiro;			
+	
     private int player1Id, player2Id;
     //private boolean player1Status, player2Status;
     
@@ -33,16 +33,16 @@ public class KingsValleyGame {
     private int king1Pos, king2Pos; // King position, use for test routines
     
 	public KingsValleyGame() {
-		this.board = new char[25];
-		setUpGame();
+		this.tabuleiro = new Tabuleiro();
+		this.setUpGame();
 	}
 	
 	public void limpaPartida() {
-		setUpGame();
+		this.setUpGame();
 	}
 	
 	private void setUpGame() {
-		initBoard();
+		this.tabuleiro.inicializaTabuleiro();
 		
 		this.tempoAguardandoInicio = 0; 
     	this.tempoDesdeUltimaJogada = 0; 
@@ -56,16 +56,7 @@ public class KingsValleyGame {
 		this.estadoPartida = EstadosPartida.Vazia;
 	}
 	
-	/**
-	 *	Set default board configuration 
-	 */
-	private void initBoard() {
-		this.board = new char[] { 's', '-', '-', '-', 'S', // 0 - 4 
-				's', '-', '-', '-', 'S', // 5 - 9
-				'k', '-', '-', '-', 'K', // 10 - 14
-				's', '-', '-', '-', 'S', // 15 - 19
-				's', '-', '-', '-', 'S'  }; // 20 - 24
-	}
+	
 	
 	
 	public String obtemTabuleiro() {
@@ -165,45 +156,7 @@ public class KingsValleyGame {
 		}
 	}
 
-	private int verificaPosicao(int idx, int dir) {
 	
-		int boardLength = this.board.length; 
-		int l = idx / 5; 
-		int min = l * 5; //menor x da linha
-		int max = min + 4; //maior x da linha		
-			
-		switch (dir) {
-			case 0: // direita
-				idx = idx+1 <= max && isBoardPositionEmpty(idx+1) ? idx+1 : -1;
-				break;
-			case 1: // diagonal direita inferior
-				idx = idx < max && idx+6 < boardLength && isBoardPositionEmpty(idx+6) ? idx+6 : -1;
-				break;
-			case 2: // para baixo 
-				idx = idx+5 < boardLength && isBoardPositionEmpty(idx+5) ? idx+5 : -1;
-				break;
-			case 3: // diagonal esquerda inferior
-				idx = idx > min && idx+4 < boardLength && isBoardPositionEmpty(idx+4) ? idx+4 : -1;
-				break;
-			case 4: // esquerda
-				idx = idx-1 >= min && isBoardPositionEmpty(idx-1) ? idx-1 : -1;
-				break;
-			case 5: // diagonal esquerda superior
-				idx = idx > min && idx-6 > 0 && isBoardPositionEmpty(idx-6) ? idx-6 : -1;
-				break;
-			case 6: // para cima
-				idx = idx-5 >= 0 && isBoardPositionEmpty(idx-5) ? idx-5 : -1;
-				break;
-			case 7: // diagonal direita superior 
-				idx = idx < max && idx-4 > 0 && isBoardPositionEmpty(idx-4) ? idx-4 : -1;
-				break;
-			default:
-				System.out.println("Error: Invalid direction.");
-				break;		
-		}
-		
-		return idx;
-	}
 	
 	/**
 	 * 
