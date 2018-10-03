@@ -1,7 +1,5 @@
 package game;
 
-import javax.swing.Painter;
-
 public class Tabuleiro {
 
 	private char[] tabuleiro;
@@ -12,6 +10,16 @@ public class Tabuleiro {
 		this.inicializaTabuleiro();
 	}
 	
+	/*
+	 *  Realiza a inicialização do tabuleiro. 
+	 *  
+	 *  A representacao do tabuleiro é dada como:
+	 *		"." = casa nao ocupada
+	 * 		"s" soldado claro (soldier)
+	 *		"S" soldado escuro (Soldier)
+	 *  	"k" rei claro (king)
+	 * 		"K" rei escuro (King) 
+	 */
 	public void inicializaTabuleiro() {
 		this.tabuleiro = new char[] { 's', '-', '-', '-', 'S', // 0 - 4 
 				's', '-', '-', '-', 'S', // 5 - 9
@@ -86,32 +94,35 @@ public class Tabuleiro {
 		}
 	}
 	
+	/*
+	 * Realiza o movimento da peça obrigatoriamente no sentido escolhido ate:
+	 * 	
+	 * 	1) fim do tabuleiro
+	 *	2) encontrar uma outra peca (nao e possivel pular uma peca)
+	 * 
+	 * TODO
+	 * A única peca que pode parar no centro é rei, porém o rei também não poderá 
+	 * parar no centro se houver mais casas no sentido. Já os soldados podem apenas 
+	 * passar pelo centro mas não podem parar.
+	 * 
+	 */
 	public boolean movePeca(int pos, int dir) {
 		
 		int originalPos = pos;
 		int newPos = 0;
 		
-		// peca se movimenta obrigatoriamente no sentido escolhido ate
-		// 1) fim do tabuleiro
-		// 2) encontrar uma outra peca (nao e possivel pular uma peca)
-		
-		// TODO unica peca que pode parar no centro é rei
-		// TODO o rei também não poderá parar no centro se houver mais casas no sentido
-		// soldados podem passar pelo centro mas não podem parar
-		
 		while(true) { // enquanto próximo movimento é válido
-			
 			newPos = this.verificaProximaPos(pos, dir); // busca próximo movimento
 			if(newPos >= 0) { // movimento foi válido
-				// atualiza reis se suas posições forem modificadas
+				//System.out.println("Movimento válido encontrado");
+				// atualiza reis se suas posições tiverem sido modificadas
 				this.rei1Pos = pos == this.rei1Pos ? newPos : pos; 
 				this.rei2Pos = pos == this.rei2Pos ? newPos : pos;
-				// this.atualizaPosicaoRei(pos, newPos);
 				pos = newPos;
-				//System.out.println("Movimentou para outra posição");
 			}else { //não houve um movimento válido
-				// houve algum movimento anter, então realiza a atualização do tabuleiro
-				if(pos != originalPos) {
+				//System.out.println("Movimento inválido encontrado");
+				if(pos != originalPos) { // houve algum movimento anterior
+					// realiza a atualização do tabuleiro
 					this.tabuleiro[pos] = this.tabuleiro[originalPos]; 
 					this.tabuleiro[originalPos] = '-';
 				}else {

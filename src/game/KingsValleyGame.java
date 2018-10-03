@@ -1,34 +1,33 @@
 package game;
 
 import enums.Direcao;
+import enums.EstadoJogador;
 import enums.EstadoPartida;
 import enums.OrdemJogada;
 
+/*
+ * 
+ * 
+ * TODO Jogadas inválidas valem para restart do contador de tempo das jogadas?
+ * 
+ * 
+ */
 public class KingsValleyGame {
 
-	public enum PieceTypes {
-		B_SOLDIER, B_KING, W_SOLDIER, W_KING; 
-	}
-	
-	/*
-	 *  Representacao do tabuleiro
-	 *		"." = casa nao ocupada
-	 * 		"s" soldado claro (soldier)
-	 *		"S" soldado escuro (Soldier)
-	 *  	"k" rei claro (king)
-	 * 		"K" rei escuro (King) 
-	 */
 	private Tabuleiro tabuleiro;			
 	private Jogador jogador1, jogador2;
 	
     private EstadoPartida estadoPartida;
     
-    private int tempoAguardandoInicio; // tempo entre inicialização e entrada do segundo jogador 
-    private int tempoDesdeUltimaJogada; // tempo desde a última jogada
-    private int tempoDesdeEncerramento; // tempo desde o encerramento
-        
+    /* A utilização do temporizador depende do estado da partida, podendo ser
+    	1) tempo entre inicialização da partida e entrada do segundo jogador
+    	2) tempo desde a última jogada
+    	3) tempo desde o encerramento
+    */
+    private int temporizador;  
+    
     private boolean firstPlay;
-    private int onMovePlayer; // Jogador da jogada atual
+    private Jogador jogadorDaVez; // Jogador da jogada atual
     
 	public KingsValleyGame() {
 		this.tabuleiro = new Tabuleiro();
@@ -45,9 +44,7 @@ public class KingsValleyGame {
 	
 	private void setUpGame() {
 		this.tabuleiro.inicializaTabuleiro();
-		this.tempoAguardandoInicio = 0; 
-    	this.tempoDesdeUltimaJogada = 0; 
-    	this.tempoDesdeEncerramento = 0; 
+		this.temporizador = 0; 
 		this.firstPlay = true;
 		this.estadoPartida = EstadoPartida.Vazia;
 	}
@@ -68,13 +65,8 @@ public class KingsValleyGame {
 	 * 
 	 */
 	private boolean ehMinhaPeca(int idJogador, char peca) {
-		if(idJogador == this.jogador1.getIdJogador()) {
-			return this.jogador1.ehMinhaPeca(peca);
-			
-		}else if(idJogador == this.jogador2.getIdJogador()) {
-			return this.jogador2.ehMinhaPeca(peca);
-		}
-		return false;
+		Jogador jogador = getJogadorPorId(idJogador);
+		return jogador.ehMinhaPeca(peca);	
 	}
 	
 	/*
@@ -99,51 +91,66 @@ public class KingsValleyGame {
 		return this.tabuleiro.getRei2Pos();
 	}
 	
-	private boolean win(int idJogador) { // vitória
+	/*
+	 * Testa se um jogadores é vitorioso.
+	 * 
+	 * @param idJogador		identificador do jogador que se deseja verificar
+	 * @return				true se for vitorioso, caso contrário false
+	 * 
+	 */
+	private boolean win(int idJogador) { 
+		// TODO se o rei ficar encurralado em uma casa, sem poder se mover, isso também determina
+		// a derrota do respectivo jogador.
+		
 		// meu  rei atingiu o meio
-		if(this.tabuleiro.getPeca(9) == getJogadorPorId(idJogador).getReiChar())
+		if(this.tabuleiro.getPeca(12) == getJogadorPorId(idJogador).getReiChar())
 			return true;
 		// rei do adversário foi encurralado, ou seja, não tem um movimento válido
 		int posicaoRei = getReiPosicao(idJogador);
 		return !hasValidMove(posicaoRei);
 	}
+	
+	private boolean tie() { // empate
+		if(!hasValidMove(jogador1.getIdJogador()) &&
+				!hasValidMove(getIdOponente(jogador2.getIdJogador())))
+			return true;		
+		return false;
+	}
 
-	private Jogador getJogadorPorId(int idJogador) {
+	public Jogador getJogadorPorId(int idJogador) {
 		if(idJogador == this.jogador1.getIdJogador())
 			return jogador1;
+		else if(idJogador == this.jogador2.getIdJogador())
+			return jogador2;
 		else
-			return jogador2;		
+			return null;
 	}
 	
-	private int getOponentId(int idJogador) {
+	public int getIdOponente(int idJogador) {
 		if(idJogador == this.jogador1.getIdJogador())
 			return this.jogador2.getIdJogador();
 		else
 			return jogador1.getIdJogador();
 	}
+	
+	/*
+	 * Retorna o oponente de um jogador qualquer.
+	 * 
+	 * @param idJogador		identificador do jogador ao qual se deseja conhecer o oponente
+	 * 
+	 * @return				se o idJogador for válidoretorna um player (objeto Jogador do tipo 
+	 * 						jogador) , caso contrário é retornado null.
+	 * 
+	 */
+	public Jogador getOponente(int idJogador) {
+		if(idJogador == this.jogador1.getIdJogador())
+			return this.jogador2;
+		else if(idJogador == this.jogador2.getIdJogador())
+			return jogador1;
+		else
+			return null;
+	}
 
-	private boolean tie(int id) { // empate
-		if(!hasValidMove(id) && !hasValidMove(getOponentId(id)))
-			return true;		
-		return false;
-	}
-	
-	private boolean isOponentActive(int playerId) {
-		if(playerId == this.jogador1.getIdJogador()) {
-			if(this.jogador2.getIdJogador() == -3) {
-				return false;
-			}else {
-				return true;
-			}
-		} else {
-			if(this.jogador1.getIdJogador() == -3) {
-				return false;
-			}else {
-				return true;
-			}
-		}
-	}
-	
 	/**
 	 * 
 	 * Note que é possível o mesmo player jogar
@@ -151,32 +158,33 @@ public class KingsValleyGame {
 	 * TODO um mesmo player pode coexistir em uma
 	 * partida?  hãm?
 	 * 
-	 * @param jogadorId
+	 * @param idJogador
 	 */
-	public void setJogador1(int jogadorId) {
-		this.jogador1.setIdJogador(jogadorId);
+	public void setJogador1(int idJogador, String nome) {
+		this.jogador1.setIdJogador(idJogador);
+		this.jogador1.setNome(nome);
 		this.jogador1.setOrdemJogador(OrdemJogada.Primeiro);
-		this.onMovePlayer = jogadorId;
+		this.jogadorDaVez = this.jogador1;
+		this.estadoPartida = EstadoPartida.AguardandoOponente;
 	}
-    
-	public void setJogador2(int jogadorId) {
-		this.jogador2.setIdJogador(jogadorId);
+	
+	public void setJogador2(int idJogador, String nome) {
+		this.jogador2.setIdJogador(idJogador);
+		this.jogador2.setNome(nome);
 		this.jogador2.setOrdemJogador(OrdemJogada.Segundo);
 		this.estadoPartida = EstadoPartida.EmJogo;
 	}
+
+	public int getIdJogador1() {
+		return jogador1.getIdJogador();
+	}
+    
+	public int getIdJogador2() {
+		return jogador1.getIdJogador();
+	}
 	
     public int getOnMovePlayer() {
-    	return this.onMovePlayer;
-    }
-    
-    public int getOpponentId(int playerId) {
-    	// TODO e se o oponente ainda não foi inicializado?
-    	if(playerId == jogador1.getIdJogador())
-    		return jogador2.getIdJogador();
-    	if(playerId == jogador2.getIdJogador())
-    		return jogador1.getIdJogador();
-    	else
-    		return -1;
+    	return this.jogadorDaVez.getIdJogador();
     }
 	
 	/*
@@ -197,36 +205,29 @@ public class KingsValleyGame {
 	 * 			 6 perdedor por WO
 	 * 
 	 */
-	public int ehMinhaVez(int playerId) {
+	public int ehMinhaVez(int idJogador) {
 	
-		// TODO se o rei ficar encurralado em uma casa, sem poder se mover, isso também determina
-		// a derrota do respectivo jogador.
-		
-		if(playerId != this.jogador1.getIdJogador() && playerId != this.jogador2.getIdJogador())
+		// Verifica se é um id válido
+		if(idJogador != this.jogador1.getIdJogador() && idJogador != this.jogador2.getIdJogador())
 			return -1;
 		
 		// verifica se partida já começou
-		if(this.jogador1.getIdJogador() < 0 || this.jogador2.getIdJogador() < 0) // inda não há dois jogadores na partida
+		if(estadoPartida == EstadoPartida.AguardandoOponente) // ainda não há dois jogadores na partida
 			return -2;
 		
-		// verifica o estado do jogo, em relação a resultado (vitória, derrot e WO)
-		if(win(playerId))
+		if(win(idJogador)) // vitória
 			return 2;
-		if(win(getOponentId(playerId)))
+		if(win(getIdOponente(idJogador))) // derrota
 			return 3;
-
-		// empate
-		if(tie(playerId))
+		if(tie()) // empate
 			return 4;
 		
 		// vitória por WO - oponente desistiu (não está mais ativo)
-		if(!isOponentActive(playerId))
+		if(this.getOponente(idJogador).getEstado() == EstadoJogador.Desistiu)
 			return 5;
 		
-		// TODO se eu perder por WO eu ainda posso consultar 
-		
 		// se chegou aqui sem resultado, retorna se é ou não minha vez 
-		if(this.onMovePlayer != playerId) // é minha vez ou não
+		if(this.jogadorDaVez.getIdJogador() != idJogador) // é minha vez ou não
 			return 0;
 		else
 			return 1;
@@ -235,19 +236,25 @@ public class KingsValleyGame {
 	
 	/*
 	 * 
-	 * @param pos
-	 * @param dir
+	 * Realiza o movimento de uma peça no tabuleiro. Jogadas são obrigatórias, 
+	 * um jogador não pode deixar de mover uma peca no seu turno.
+	 * 
+	 * @param idJogador		identificador do jogador que deseja realizar o movimento
+	 * @param lin			posição da linha atual onde se localiza a peça
+	 * @param col			posição da coluna atual onde se localiza a peça
+	 * @param direcao		direção a qual se deseja movimentar a peça
+	 * 
 	 * @return função retorna: 
 	 * 			
-	 * 			-0 para movimento inválido - por exemplo, movimento em uma direção e sentido
-	 * 				que que resulta em uma posição ocupada ou fora do tabuleiro. Também 
-	 * 				retornará 0 quando o jogador tent mover uma peça que não é sua.
-	 * 			-1 se tudo estiver certo
+	 * 		0 -	para movimento inválido - por exemplo, movimento em uma direção e sentido
+	 * 			que que resulta em uma posição ocupada ou fora do tabuleiro. Também 
+	 * 			retornará 0 quando o jogador tent mover uma peça que não é sua.
+	 * 		1 -	se tudo estiver certo
 	 * 			
-	 * 			-1 para jogador não encontrado (TODO server pode validar isso também)
-	 * 			-2 partida não iniciada: ainda não há dois jogadores registrados na partida
-	 * 			-3 quando parâmetros de posição e orientação foram inválidos
-	 * 			-4 não é a vez do jogador.
+	 * 		1 -	para jogador não encontrado (TODO server pode validar isso também)
+	 * 		2 -	partida não iniciada: ainda não há dois jogadores registrados na partida
+	 * 		3 -	quando parâmetros de posição e orientação foram inválidos
+	 * 		4 -	não é a vez do jogador.
 	 * 
 	 *		Valores para dir (raciocinio em sentido horario)
 	 *		0 - direita
@@ -266,7 +273,8 @@ public class KingsValleyGame {
 	 *		'k', '-', '-', '-', 'K' 	10 - 14
 	 *		's', '-', '-', '-', 'S' 	15 - 19
 	 *		's', '-', '-', '-', 'S'  	20 - 24
-	  
+	 *
+	 *
 	 * */
 	public int movePeca(int idJogador, int lin, int col, Direcao direcao) {
 		
@@ -285,15 +293,15 @@ public class KingsValleyGame {
 		}else if(this.jogador1.getIdJogador() == -1 || this.jogador2.getIdJogador() == -1) {
 			// TODO o que acontece se um player abandonar?
 			return -2; // Violação, erro código -2
-		// Regra: Validade dos parâmetros de posição e orientação. 
+		// Regra: um jogador só pode mover as suas peças.
 		}else if(!ehMinhaPeca(idJogador, peca)) {
 			return 0; // Violação, erro código 0
+		// Regra: Validade dos parâmetros de posição e orientação. 
 		}else if((dir < 0 || dir > 7) || (lin < 0 || lin > 4) || (col < 0 || col > 4)) {
 			return -3; // Violação, erro código -3;
 		// Regra: É a vez do jogador em questão? 
 		}else if(getOnMovePlayer() != idJogador) {
 			return -4;
-		// Regra: um jogador só pode mover as suas peças.
 		}
 
 		if(this.firstPlay) {
@@ -303,21 +311,13 @@ public class KingsValleyGame {
 				return 0;
 		}
 			
-		if(this.tabuleiro.movePeca(pos, dir)) {	
-		
-			// Regra: comando de resultar em um movimento válido
-			//if(newPos == originalPos)
-			//	return 0; // movimento foi inválido e posiçao foi mantida
-			
-			// jogadas são obrigatórias, um jogador não pode deixar de mover uma peca no seu turno
-			// só passa a vez se a jogada foi válida
+		if(this.tabuleiro.movePeca(pos, dir)) {	// se realiza movimento foi válido
+			// passa a vez se a jogada foi válida
 			if(idJogador == this.jogador1.getIdJogador())
-				this.onMovePlayer = this.jogador2.getIdJogador();
+				this.jogadorDaVez = this.jogador2;
 			else
-				this.onMovePlayer = this.jogador1.getIdJogador();
-			
-			// TODO jogadas inválidas valem para restart do contador?
-			this.tempoDesdeUltimaJogada = 0;
+				this.jogadorDaVez = this.jogador1;
+			this.temporizador = 0;
 			return 1;
 		}
 		return 0;
@@ -332,13 +332,25 @@ public class KingsValleyGame {
     }
 	
 	/*
+	 * Encerra a partida atual. A partida é dada como encerrada e o jogador que 
+	 * desistiu é dado como desistente.  
 	 * 
-	 * TODO verificar retornos
+	 * @param idJogador		identificador do jogador que deseja encerrar a partida
+	 * @return 				retorna 0 se partida for fechada com sucesso e -1 para erro.
 	 * 
 	 */
-	public int encerraPartida(int playerId) {
+	public int encerraPartida(int idJogador) {
 		this.estadoPartida = EstadoPartida.Encerrada;
-		return 1;
+		Jogador jogador = this.getJogadorPorId(idJogador);
+		if(jogador != null) {
+			jogador.setEstado(EstadoJogador.Desistiu);
+			return 0;
+		}
+		return -1;
+	}
+	
+	public void encerraPartida() {
+		this.estadoPartida = EstadoPartida.Encerrada;
 	}
 	
 	public boolean emJogo() {
@@ -346,11 +358,15 @@ public class KingsValleyGame {
 	}
 	
 	public boolean aguardandoJogador() {
-		return this.estadoPartida == EstadoPartida.AguardandoJogador;
+		return this.estadoPartida == EstadoPartida.AguardandoOponente;
 	}
 	
 	public boolean partidaEncerrada() {
 		return this.estadoPartida == EstadoPartida.Encerrada;
+	}
+	
+	public boolean partidaVazia() {
+		return this.estadoPartida == EstadoPartida.Vazia;
 	}
 	
 	
@@ -363,20 +379,31 @@ public class KingsValleyGame {
 	 * 		60 segundos para “destruir” a partida depois de definido o vencedor.	 
      */
     public void atualizaRestricoesTemporais() {
-    	if(this.estadoPartida == EstadoPartida.AguardandoJogador) {
-    		this.tempoAguardandoInicio++; // tempo entre inicialização e entrada do segundo jogador
-    		if(tempoAguardandoInicio == 120)
-    			this.estadoPartida = EstadoPartida.Encerrada;
+    	if(this.estadoPartida == EstadoPartida.AguardandoOponente) {
+    		this.temporizador++; // tempo entre inicialização e entrada do segundo jogador
+    		if(temporizador == 6) { // de 120 para 6
+    			System.out.println("Estado partida Aguardando -> AguardandoDestruicao");
+    			this.estadoPartida = EstadoPartida.AguardandoDestruicao;
+    			this.temporizador = 0;
+    		}
     	}else if(this.estadoPartida == EstadoPartida.EmJogo){
-    		this.tempoDesdeUltimaJogada++; // tempo desde a última jogada
-    		if(this.tempoDesdeUltimaJogada == 60)
-    			this.estadoPartida = EstadoPartida.Encerrada;	
+    		this.temporizador++; // tempo desde a última jogada
+    		if(this.temporizador == 3) { // de 6 para 3
+    			System.out.println("Estado partida EmJogo -> Encerrada");
+    			this.estadoPartida = EstadoPartida.Encerrada;
+    			this.temporizador = 0;
+    			// Muda estado do jogador atual
+    			this.jogadorDaVez.setEstado(EstadoJogador.Desistiu);
+    		}
     	}else if(this.estadoPartida == EstadoPartida.Encerrada){
-    		this.tempoDesdeEncerramento++; // tempo desde o encerramento
-    		if(this.tempoDesdeEncerramento == 60)
-        		this.estadoPartida = EstadoPartida.AguardandoDestruicao;
+    		this.temporizador++; // tempo desde o encerramento
+    		if(this.temporizador == 3) { // de 6 para 3
+    			System.out.println("Estado partida Encerrada -> AguardandoDestruicao");
+    			this.estadoPartida = EstadoPartida.AguardandoDestruicao;
+    			this.temporizador = 0;
+    		}
     	}else if(this.estadoPartida == EstadoPartida.Vazia){
-    		// TODO Hello empty room!
+    		System.out.println("Estado da partida é vazia!");
     	}else {
     		System.out.println("Erro na atualização dos temporizadores!");
     	}
@@ -392,6 +419,20 @@ public class KingsValleyGame {
     		return true;
     	return false;
     }
+
+	public boolean ehEncerravel() {
+		
+		if(estadoPartida == EstadoPartida.Encerrada)
+			return false;
+		
+		if(win(jogador1.getIdJogador()) || win(jogador2.getIdJogador()) || tie() ||
+				jogador1.getEstado() == EstadoJogador.Desistiu || 
+				jogador2.getEstado() == EstadoJogador.Desistiu) {
+			estadoPartida = EstadoPartida.Encerrada;
+			return true;
+		}	
+		return false;
+	}
     
 	
 }

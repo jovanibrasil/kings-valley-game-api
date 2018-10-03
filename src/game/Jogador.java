@@ -1,15 +1,17 @@
 package game;
 
+import enums.EstadoJogador;
 import enums.OrdemJogada;
 
 public class Jogador {
 	
 	private int idJogador;
 	private int posRei;
-	
+	private String nome;
 	private char reiChar;
 	private char soldadoChar;
 	
+	private EstadoJogador estado;
 	
 	public Jogador() {
 		this.inicializaJogador();
@@ -20,6 +22,8 @@ public class Jogador {
 		this.posRei = -1;
 		this.reiChar = ' ';
 		this.soldadoChar = ' ';
+		this.estado = EstadoJogador.EmJogo;
+		this.nome = "";
 	}
 	
 	public void setIdJogador(int idJogador) {
@@ -29,6 +33,14 @@ public class Jogador {
 	public int getIdJogador() {
 		return this.idJogador;
 	}
+	
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+	
+	public String getNome() {
+		return this.nome;
+	}
 
 	public void setOrdemJogador(OrdemJogada ordemJogada) {
 		if(ordemJogada == OrdemJogada.Primeiro) {
@@ -37,7 +49,7 @@ public class Jogador {
 			this.soldadoChar = 's';
 		}else {
 			this.posRei = 14;
-			this.reiChar = 'k';
+			this.reiChar = 'K';
 			this.soldadoChar = 'S';
 		}
 	}
@@ -63,7 +75,14 @@ public class Jogador {
 			return true;
 		return false;
 	}
+
+	public void setEstado(EstadoJogador estado) {
+		this.estado = estado;
+	}
 	
+	public EstadoJogador getEstado() {
+		return this.estado;
+	}
 	
 	
 }

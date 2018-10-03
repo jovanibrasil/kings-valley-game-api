@@ -3,7 +3,6 @@ package tests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.Assert;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,10 +42,10 @@ class KingsValleyGameTests {
 	 * com id=2.
 	 */
 	@Test
-	void getPlayerValidOpponent() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
-		Assert.assertEquals(3, this.game.getOpponentId(2));
+	void getPlayerOponenteValido() {
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
+		Assert.assertEquals(3, this.game.getOponente(2).getIdJogador());
 	}
 	
 	/*
@@ -55,9 +54,9 @@ class KingsValleyGameTests {
 	 * 
 	 */
 	@Test
-	void getPlayerInvalidOpponent() {
-		this.game.setJogador1(2);
-		Assert.assertEquals(-1, this.game.getOpponentId(2));
+	void getPlayerOponenteInvalido() {
+		this.game.setJogador1(2, "Jovani2");
+		Assert.assertEquals(-1, this.game.getOponente(2).getIdJogador());
 	}
 	
 	/*
@@ -69,7 +68,7 @@ class KingsValleyGameTests {
 	 */
 	@Test
 	void getPlayerInvalidOpponentFromEmptyGame() {
-		Assert.assertEquals(-1, this.game.getOpponentId(2));
+		Assert.assertEquals(-1, this.game.getIdOponente(2));
 	}
 	
 	/*
@@ -78,8 +77,8 @@ class KingsValleyGameTests {
 	 */
 	@Test
 	void validCloseGame() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		assertEquals(0, this.game.encerraPartida(2));
 	}
 	
@@ -89,16 +88,16 @@ class KingsValleyGameTests {
 	 */
 	@Test
 	void invalidPlayerCloseGame() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		assertEquals(-1, this.game.encerraPartida(4)); // retorna -1, pois não existe player com id 4
 	}
 
 	
 	@Test
 	void validRightMove() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		int id = this.game.ehMinhaVez(2); // deve retornar 1, dado que é o turno player 1
 		//System.out.println(this.game.getBoard());
 		assertEquals(1, id);
@@ -110,31 +109,31 @@ class KingsValleyGameTests {
 	
 	@Test
 	void moveInvalidPlayer() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		// retorna -1, player inválido
 		assertEquals(-1, this.game.movePeca(4, 0, 0, Direcao.Direita)); 
 	}
 	
 	@Test
 	void moveWithNotStartedGame() {
-		this.game.setJogador1(2);
+		this.game.setJogador1(2, "Jovani2");
 		// retorna -2, pq partida ainda não foi iniciada
 		assertEquals(-2, this.game.movePeca(2, 0, 0, Direcao.Direita)); 
 	}
 	
 	@Test
 	void isNotMyTurn1() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		// retorna -4, pq não é a vez do player id=3
 		assertEquals(-4, this.game.movePeca(3, 0, 4, Direcao.Direita)); 
 	}
 	
 	@Test
 	void isNotMyTurn2() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		this.game.movePeca(2, 0, 0, Direcao.Direita);
 		//System.out.println(this.game.getBoard());
 		
@@ -143,8 +142,8 @@ class KingsValleyGameTests {
 	
 	@Test
 	void isNotMyTurn3() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		int status = this.game.movePeca(2, 0, 0, Direcao.Direita);
 		assertEquals(1, status);
 		status = this.game.movePeca(3, 4, 4, Direcao.Esquerda);
@@ -154,31 +153,31 @@ class KingsValleyGameTests {
 	
 	@Test
 	void isNotMyPiece1() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		int status = this.game.movePeca(2, 1, 4, Direcao.Esquerda);
 		assertEquals(0, status);
 	}
 	
 	@Test
 	void isNotMyPiece2() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		int status = this.game.movePeca(3, 0, 0, Direcao.Direita);
 		assertEquals(0, status);
 	}
 	
 	@Test
 	void invalidEmptyPieceMove() {
-		this.game.setJogador1(1);
-		this.game.setJogador2(2);
+		this.game.setJogador1(1, "Jovani1");
+		this.game.setJogador2(2, "Jovani2");
 		assertEquals(0, this.game.movePeca(1, 0, 1, Direcao.Direita)); // mover um espaço vazio, retorna 0
 	}
 	
 	@Test
 	void testHorizontalMove(){
-		this.game.setJogador1(1);
-		this.game.setJogador2(2);
+		this.game.setJogador1(1, "Jovani1");
+		this.game.setJogador2(2, "Jovani3");
 		// movimentos válidos
 		assertEquals(1, this.game.movePeca(1, 0, 0, Direcao.Direita)); // p1 move s(0,0) para direita
 		assertEquals(1, this.game.movePeca(2, 1, 4, Direcao.Esquerda)); // p2 move s(1,5) para esquerda
@@ -198,8 +197,8 @@ class KingsValleyGameTests {
 	
 	@Test
 	void testVerticalMove() { 
-		this.game.setJogador1(1);
-		this.game.setJogador2(2);
+		this.game.setJogador1(1, "Jovani1");
+		this.game.setJogador2(2, "Jovani2");
 		// player 1 tenta um movimento inválido (cima)
 		assertEquals(0, this.game.movePeca(1, 0, 0, Direcao.Cima)); 
 		// não conseguindo, realiza um movimento válido (direta) 
@@ -216,8 +215,8 @@ class KingsValleyGameTests {
 	
 	@Test
 	void testDiagonalMove() {
-		this.game.setJogador1(1);
-		this.game.setJogador2(2);
+		this.game.setJogador1(1, "Jovani1");
+		this.game.setJogador2(2, "Jovani2");
 		
 		assertEquals(1, this.game.movePeca(1, 0, 0, Direcao.DiagonalDireitaInferior)); 
 		//System.out.println(this.game.getBoard());
@@ -250,52 +249,46 @@ class KingsValleyGameTests {
 //	
 	@Test
 	void firstIsTheSoldier() {
-		this.game.setJogador1(1);
-		this.game.setJogador2(2);
+		this.game.setJogador1(1, "Jovani1");
+		this.game.setJogador2(2, "Jovani2");
 		assertEquals(0, this.game.movePeca(1, 2, 0, Direcao.Direita)); // primeiro movimento não pode ser o rei  
 	}
 	
 	@Test
 	void isntMyTurn() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		int res = this.game.ehMinhaVez(3);
 		assertEquals(0, res); // retorna zero, pq não é a vez do player 2
 	}
 	
 	@Test
 	void isMyTurn() {
-		this.game.setJogador1(2);
-		this.game.setJogador2(3);
+		this.game.setJogador1(2, "Jovani2");
+		this.game.setJogador2(3, "Jovani3");
 		int res = this.game.ehMinhaVez(2);
 		assertEquals(1, res); // retorna um, pq é a vez do player 1
 	}
 	
 	@Test
 	void insufficientPlayer1() {
-		this.game.setJogador1(2);
+		this.game.setJogador1(2, "Jovani2");
 		int res = this.game.ehMinhaVez(2);
 		assertEquals(-2, res); // retorna -2, pq ainda não existem dois jogadores na partida
 	}
 
-	@Test
-	void insufficientPlayer2() {
-		this.game.setJogador2(2);
-		int res = this.game.ehMinhaVez(2);
-		assertEquals(-2, res); // retorna -2, pq ainda não existem dois jogadores na partida
-	}
-	
+
 	@Test
 	void isMyTurnInvalidPlayerId1() {
-		this.game.setJogador2(2);
+		this.game.setJogador2(2, "Jovani2");
 		int res = this.game.ehMinhaVez(1);
 		assertEquals(-1, res); // retorna -1, pq não existe player com id 1 na sala
 	}
 	
 	@Test
 	void isMyTurnInvalidPlayerId2() {
-		this.game.setJogador1(3);
-		this.game.setJogador2(2);
+		this.game.setJogador1(3, "Jovani3");
+		this.game.setJogador2(2, "Jovani2");
 		int res = this.game.ehMinhaVez(1);
 		assertEquals(-1, res); // retorna -1, pq não existe player com id 1 na sala
 	}
@@ -309,7 +302,29 @@ class KingsValleyGameTests {
 * 			 6 perdedor por WO
 */
 	
-	
+	@Test
+	void testPartidaCompleta() {
+		
+		this.game.setJogador1(1, "Jovani1");
+		this.game.setJogador2(2, "Jovani2");
+		//System.out.println(this.game.obtemTabuleiro());
+		this.game.movePeca(1, 0, 0, Direcao.Direita);
+		//System.out.println(this.game.obtemTabuleiro());
+		this.game.movePeca(2, 2, 4, Direcao.Esquerda);
+		//System.out.println(this.game.obtemTabuleiro());
+		this.game.movePeca(1, 3, 0, Direcao.Direita);
+		//System.out.println(this.game.obtemTabuleiro());
+		this.game.movePeca(2, 1, 4, Direcao.DiagonalEsquerdaInferior);
+		//System.out.println(this.game.obtemTabuleiro());
+		this.game.movePeca(1, 0, 3, Direcao.Baixo);
+		//System.out.println(this.game.obtemTabuleiro());
+		this.game.movePeca(2, 2, 1, Direcao.Direita);
+		//System.out.println(this.game.obtemTabuleiro());
+		
+		assertEquals(3, this.game.ehMinhaVez(1));
+		assertEquals(2, this.game.ehMinhaVez(2));
+		
+	}
 	
 	
 	

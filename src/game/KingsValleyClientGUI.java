@@ -15,6 +15,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 /**
+ * 
+ * EM CONSTRUÇÃO!!!!!!!!!!!!
+ * 
  * Interface gráfica para o cliente do KingsValley. 
  * 
  * 
