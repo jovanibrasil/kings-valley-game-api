@@ -7,12 +7,146 @@ import java.rmi.RemoteException;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import game.KingsValleyImpl;
+import jogo.servidor.KingsValleyImpl;
+
+/**
+*
+* Classe de testes para a classe KingsValleyServer.
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
 
 public class KingsValleyServerTests {
 
 	private static KingsValleyImpl server;
 	
+	/*
+	 * Registra 1 player. O id do player deve ser 0.
+	 */
+	@Test
+	void testRegistraJogador() {
+		try {
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			int id = server.registraJogador("Jovani1");
+			Assert.assertEquals(0, id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Registra 2 players em sequência. O id do player 1 deve ser 0 e do
+	 * player 2 é 1.
+	 */
+	@Test
+	void testRegistraJogadorOponente() {
+		try {
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			int id1 = server.registraJogador("Jovani1");
+			int id2 = server.registraJogador("Jovani2");
+			Assert.assertEquals(0, id1);
+			Assert.assertEquals(1, id2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * 2 players estão registrados. Consulta quem é o oponente
+	 * do player 2 (Jovani2), que é o player 1 (Jovani1).
+	 */
+	@Test
+	void testRegistraOponenteInvalido() {
+		try {
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			int id = server.registraJogador("Jovani1");
+			server.registraJogador("Jovani2");
+			String name = server.obtemOponente(id);
+			Assert.assertEquals("Jovani2", name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Consulta oponente de um player com id inválido. Um id inválido
+	 * é um id negativo ou maior que a capacidade de registro de um 
+	 * servidor. O resultado esperado é uma string vazia. 
+	 */
+	@Test
+	void testObtemOponenteComIdJogadorInvalido() {
+		try {
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			server.registraJogador("Jovani1");
+			server.registraJogador("Jovani2");
+			String name = server.obtemOponente(2000);
+			Assert.assertEquals("", name);
+			name = server.obtemOponente(-10);
+			Assert.assertEquals("", name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Realiza o registro de quatro jogadores
+	 */
+	@Test
+	void testRegistraQuatroJogadores() {
+		try {
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			int id1 = server.registraJogador("Jovani1");
+			int id2 = server.registraJogador("Jovani2");
+			int id3 = server.registraJogador("Jovani3");
+			
+			// Oponente de Jovani1 é Jovani2
+			String name = server.obtemOponente(id1);
+			Assert.assertEquals("Jovani2", name);
+			name = server.obtemOponente(id2);
+			Assert.assertEquals("Jovani1", name);
+			// Jovani3 ainda não possui oponente
+			name = server.obtemOponente(id3);
+			Assert.assertEquals("", name);
+			
+			int id4 = server.registraJogador("Jovani4");
+			name = server.obtemOponente(id3);
+			Assert.assertEquals("Jovani4", name);
+			name = server.obtemOponente(id4);
+			Assert.assertEquals("Jovani3", name);	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Abando partida não iniciada ainda. O abando é
+	 * realizado com sucesso (retorno 0)
+	 */
+	@Test
+	void testAbandonaPartidaNaoIniciada() {
+		try {
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			int id1 = server.registraJogador("Jovani1");
+			int ret = server.encerraPartida(id1);
+			Assert.assertEquals(0, ret);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Testa situação em que um jogador se cadastra em uma partida e a 
+	 * mesma sofre destruição por timeout, uma vez que nenhum oponente
+	 * se registra.
+	 */
 	@Test
 	void testTimeoutIniciacaoPartida() {
 		try {
@@ -34,6 +168,10 @@ public class KingsValleyServerTests {
 		}
 	}
 	
+	/*
+	 * Testa situação de timeout de jogada. O jogador que restou na partida
+	 * é declaro vencedor por wo (walkover que significa "vitória fácil").
+	 */
 	@Test
 	void testTimeoutJogada() {
 		try {
@@ -44,8 +182,7 @@ public class KingsValleyServerTests {
 			server.registraJogador("jovani2");		
 			server.movePeca(idJovani1, 0, 0, 0);
 			Thread.sleep(4000);
-			// Ganhou por wo
-			Assert.assertEquals(5, server.ehMinhaVez(idJovani1)); 
+			Assert.assertEquals(5, server.ehMinhaVez(idJovani1)); // ganhou por wo
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -54,15 +191,18 @@ public class KingsValleyServerTests {
 		}
 	}
 	
+	/*
+	 * Testa duas partidas simultâneas ocorrendo. Note que dois player devem
+	 * acabar o processo como vencedores.
+	 */
 	@Test
 	void testDuasPartidasSimultaneas() {
 		try {
 			System.out.println("\n\n-->testDuasPartidasSimultaneas()");
 			server = new KingsValleyImpl(10);
-			//Thread.sleep(1000);
+			Thread.sleep(1000);
 			int idJovani1 = server.registraJogador("jovani1");
 			int idJovani2 = server.registraJogador("jovani2");		
-			//Thread.sleep(1000);
 			
 			server.movePeca(idJovani1, 0, 0, 0); //direita
 			server.movePeca(idJovani2, 2, 4, 4); // esquerda
@@ -86,7 +226,6 @@ public class KingsValleyServerTests {
 			assertEquals(2, server.ehMinhaVez(idJovani4));
 			
 			Thread.sleep(9000);
-			
 			idJovani3 = server.registraJogador("jovani3");
 			
 		} catch (InterruptedException e) {
@@ -95,7 +234,5 @@ public class KingsValleyServerTests {
 			e.printStackTrace();
 		}
 	}
-	
-	
 	
 }

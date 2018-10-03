@@ -1,13 +1,15 @@
-package game;
+package jogo.servidor;
 
 import enums.Direcao;
 import enums.EstadoJogador;
 import enums.EstadoPartida;
 import enums.OrdemJogada;
 
-/*
- * 
- * 
+/**
+ *
+ * @author Jovani Brasil
+ * @email jovanibrasil@gmail.com
+ *   
  * TODO Jogadas inválidas valem para restart do contador de tempo das jogadas?
  * 
  * 

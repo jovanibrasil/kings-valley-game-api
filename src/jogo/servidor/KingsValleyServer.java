@@ -1,6 +1,13 @@
-package game;
+package jogo.servidor;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+
+/**
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
 
 class KingsValleyServer {
 	// Programa servidor para o exercício de fatorial

@@ -1,4 +1,11 @@
-package game;
+package jogo.servidor;
+
+/**
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
 
 public class Tabuleiro {
 

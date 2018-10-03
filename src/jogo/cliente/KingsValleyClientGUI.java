@@ -1,28 +1,31 @@
-package game;
+package jogo.cliente;
 
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 /**
+ *
  * 
  * EM CONSTRUÇÃO!!!!!!!!!!!!
  * 
  * Interface gráfica para o cliente do KingsValley. 
  * 
- * 
  * Créditos:
  * A base da interface gráfica foi o jogo da velha implementado em https://www.paulocollares.com.br/2012/08/jogo-da-velha-em-java/.
+ *
+ *
+ * @author Jovani Brasil
+ * @email jovanibrasil@gmail.com
  *
  */
 public class KingsValleyClientGUI extends JFrame {

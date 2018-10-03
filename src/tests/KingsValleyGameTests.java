@@ -7,7 +7,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import enums.Direcao;
-import game.KingsValleyGame;
+import jogo.servidor.KingsValleyGame;
+
+/**
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
 
 class KingsValleyGameTests {
 

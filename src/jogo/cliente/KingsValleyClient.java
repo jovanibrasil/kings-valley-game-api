@@ -1,6 +1,20 @@
-package game;
+package jogo.cliente;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+
+import jogo.interfaces.KingsValleyInterface;
+
+/*
+*
+* Classe que implementa um cliente RMI para o KingsValley distribuído proposto. 
+*
+* Note que foram implementados métodos para realização das chamadas remotes, de forma
+* que o cliente pode ser instanciado e as chamadas então devidamente realizadas.
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
 
 public class KingsValleyClient {
 	
@@ -11,16 +25,6 @@ public class KingsValleyClient {
 			this.game = (KingsValleyInterface) Naming.lookup("//localhost/kv");
 		} catch (Exception e) {
 			System.out.println ("KingsValleyClient failed:");
-			e.printStackTrace();
-		}
-	}
-	
-	public void restartServer() {
-		try {
-    		//System.out.println("Registrando jogador ...");
-			this.game.restartServer();
-		} catch (RemoteException e) {
-			//System.out.println("Register Player failed");
 			e.printStackTrace();
 		}
 	}

@@ -1,12 +1,18 @@
-package game;
+package jogo.servidor;
 
 import enums.EstadoJogador;
 import enums.OrdemJogada;
 
+/*
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
+
 public class Jogador {
 	
 	private int idJogador;
-	private int posRei;
 	private String nome;
 	private char reiChar;
 	private char soldadoChar;
@@ -19,7 +25,6 @@ public class Jogador {
 	
 	public void inicializaJogador() {
 		this.idJogador = -1;
-		this.posRei = -1;
 		this.reiChar = ' ';
 		this.soldadoChar = ' ';
 		this.estado = EstadoJogador.EmJogo;
@@ -44,11 +49,9 @@ public class Jogador {
 
 	public void setOrdemJogador(OrdemJogada ordemJogada) {
 		if(ordemJogada == OrdemJogada.Primeiro) {
-			this.posRei = 10;
 			this.reiChar = 'k';
 			this.soldadoChar = 's';
 		}else {
-			this.posRei = 14;
 			this.reiChar = 'K';
 			this.soldadoChar = 'S';
 		}
