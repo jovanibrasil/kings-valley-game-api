@@ -22,11 +22,6 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 
 	private KingsValleyGame[] partidas; // Vetor para armazenamento das partidas
 	
-	// Fila de tokens de partidas que estão aguardando para estarem ativas
-	LinkedList<Integer> idsPartidasDisponiveis; // contém tokens de partidas
-	// Fila de tokens das partidas que estão em jogo
-	LinkedList<Integer> idsPartidasAtivas; // contém tokens de partidas
-	
 	// Lista de tokens  de ids já utilizados e disponíveis no momento. Quando um jogador é removido, o volta pra cá.
 	LinkedList<Integer> idsDisponiveis; 
 	// Mapeamento nome-id para garantir usuários únicos (eficiente para consultar strings)
@@ -38,15 +33,12 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 	private int[] indiceUsuarioPartida; 
 	private int totalPartidas;
 	
-	private Semaphore idsPartidasDisponiveisMutex, idsPartidasAtivasMutex, 
-		idsDisponiveisMutex, nomeJogadorMutex;
+	private Semaphore idsDisponiveisMutex, nomeJogadorMutex;
 	private Semaphore[] indiceUsuarioPartidaMutexes;
 	
     public KingsValleyImpl(int totalPartidas) throws RemoteException {
     	this.totalPartidas = totalPartidas;
     
-    	this.idsPartidasDisponiveis = new LinkedList<>(); 
-    	this.idsPartidasAtivas = new LinkedList<>();
         this.idsDisponiveis = new LinkedList<>(); 
         this.indiceUsuarioPartida= new int[totalPartidas*2];
         this.mapaIdNomeAtivos = new String[totalPartidas*2];
@@ -55,12 +47,9 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
         this.partidas = new  KingsValleyGame[totalPartidas];
         for (int i = 0, j=0; i < totalPartidas; i++, j+=2) {
         	this.partidas[i] = new KingsValleyGame();
-        	this.idsPartidasDisponiveis.add(i);
-			idsDisponiveis.add(j); idsDisponiveis.add(j+1);
+        	idsDisponiveis.add(j); idsDisponiveis.add(j+1);
 			indiceUsuarioPartidaMutexes[i] = new Semaphore(1);
         }
-        this.idsPartidasDisponiveisMutex = new Semaphore(1);
-        this.idsPartidasAtivasMutex = new Semaphore(1);
         this.idsDisponiveisMutex = new Semaphore(1);
         this.nomeJogadorMutex = new Semaphore(1);
     
@@ -78,150 +67,106 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
      *
      */
     private void inicializaThreadDeVerificacao() {
-    	new Thread(new Runnable() {
+    	new Thread(new Runnable() {	
     		 @Override
     	     public void run() {
-    	    	 System.out.println("Thread de verificação rodando ...");
-    	    	 try {	 
-    	    	 	while(true) {
-		    	    	 // atualiza dados das partidas ativas, ou seja, com dois players jogando 
-		    	    	 //System.out.println("Atualizando partidas ativas");
-		    	    	 while(true) {
-		    	    		 //System.out.println("Verificando partida ativa");
-		    	    		 idsPartidasAtivasMutex.acquire();
-		    	    		 if(idsPartidasAtivas.peek() == null) {
-		    	    			 idsPartidasAtivasMutex.release();
-		    	    			 break;
-		    	    		 }
-		    	    		 int idPartida = idsPartidasAtivas.poll();
-		    	    		 idsPartidasAtivasMutex.release();
-		    	    		 
-		    	    		 synchronized (partidas[idPartida]) {
-		    	    			 KingsValleyGame partida = partidas[idPartida];
-			    	    		 partida.atualizaRestricoesTemporais();
-			    	    		 
-			    	    		 if(partida.ehEncerravel()) {
+    	    	 //System.out.println("Thread de verificação rodando ...");
+    			 int time = 0;
+    			 while(true) {
+    	    		
+    	    		for (int idPartida = 0; idPartida < totalPartidas; idPartida++) {
+						synchronized (partidas[idPartida]) {
+							KingsValleyGame partida = partidas[idPartida];
+							if(!partida.ehPartidaVazia()) {
+								System.out.println("t="+time+" Atualizando a partida " + idPartida);
+			    	    		partida.atualizaRestricoesTemporais(time);
+			    	    		if(partida.ehEncerravel()) {
+			    	    			 System.out.println("t="+time+" a partida tornou-se encerrável");
 			    	    			 partida.encerraPartida();
-			    	    			 limpaMapeamentoDeNomes(idPartida); // reset dos nomes nas estruturas
-			    	    		 } else if(partida.ehDestruivel()) {
-			    	    			 System.out.println("A partida id= "+idPartida+
-			    	    					 " foi destruída (" + idsPartidasAtivas.size() + 
-			    	    					 " partidas ativas).");
-			    	    			 
+			    	    			 limpaMapeamentoDeNomes(idPartida);
+			    	    		}else if(partida.ehDestruivel()) {
+			    	    			 System.out.println("t=" + time + " a partida id= "+idPartida+
+			    	    					 " será destruída");
+			    	    			 limpaMapeamentoDeNomes(idPartida);
 			    	    			 devolveIdsJogadores(idPartida); // devolve ids usados pelos jogadores
 			    	    			 partida.limpaPartida(); // destrói dados da partida
-			    	    			 
-			    	    			 idsPartidasDisponiveisMutex.acquire();
-									 idsPartidasDisponiveis.add(idPartida); // adiciona as partidas em aguardo
-			    	    			 idsPartidasDisponiveisMutex.release();
-			    	    			 
-			    	    		 }else {
-			    	    			 idsPartidasAtivasMutex.acquire();
-			    	    			 idsPartidasAtivas.add(idPartida);
-			    	    			 idsPartidasAtivasMutex.release();
-			    	    		 }
-		    	    		 }
-		    	    	 }
-		    	    	 
-		    	    	 while(true) {
-		    	    		 //System.out.println("Verificando partida ativa");
-		    	    		 idsPartidasDisponiveisMutex.acquire();
-		    	    		 if(idsPartidasDisponiveis.peek() == null) {
-		    	    			 idsPartidasAtivasMutex.release();
-		    	    			 break; // se não há partidas disponíveis, break
-		    	    		 }else {
-		    	    			 int idPartida = idsPartidasDisponiveis.poll();
-		    	    			 idsPartidasDisponiveisMutex.release();
-				    	    	 //System.out.println("Atualizando partida aguardadndo");
-		    	    			 synchronized (partidas[idPartida]) {
-					    	    	 KingsValleyGame partida = partidas[idPartida];
-				    	    		 if(!partida.partidaVazia()) {
-					    	    		 partida.atualizaRestricoesTemporais();
-						   		    	 if(partida.ehDestruivel()) {
-					    	    			 System.out.println("A partida id= "+idPartida+" foi destruída.");
-					    	    			 partida.limpaPartida(); // destrói dados da partida
-					    	    			 limpaMapeamentoDeNomes(idPartida);
-					    	    			 idsPartidasDisponiveisMutex.acquire();
-					    	    			 idsPartidasDisponiveis.add(idPartida); // adiciona as partidas em aguardo
-					    	    			 idsPartidasDisponiveisMutex.release();
-						   		    	 }else {
-					    	    			 idsPartidasDisponiveisMutex.acquire();
-							    	    	 idsPartidasDisponiveis.addFirst(idPartida);
-							    	    	 idsPartidasDisponiveisMutex.release();
-					    	    		 }
-				    	    		 }else {
-				    	    			 idsPartidasDisponiveisMutex.acquire();
-						    	    	 idsPartidasDisponiveis.addFirst(idPartida);
-						    	    	 idsPartidasDisponiveisMutex.release();
-						    	    	 break;
-				    	    		 }
-				    	    	 }
-		    	    			 
-		    	    		 }
-		    	    	 }
-		    	    	Thread.sleep(1000);
-		    	     }
+				    	    	}
+							}
+    	    			}
+					}
+    	    		time++;
+    	    		try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 	    	   }
-    	       catch (InterruptedException e) {
-					e.printStackTrace();
-    	       }
     	    }
     	}).start();
 	}
-
+    
+    /*
+     * Atualiza estrutura utilizada para agilizar processo de busca
+     * de jogadores no servidor.
+     * 
+     */
+    public void atualizaIndiceUsuarioPartida(int idJogador, int idPartida) { 
+    	try {
+			indiceUsuarioPartidaMutexes[idJogador].acquire();
+			indiceUsuarioPartida[idJogador] = idPartida;
+			indiceUsuarioPartidaMutexes[idJogador].release();
+    	} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    }
+		
     @Override 
     public int registraJogador(String nome) throws RemoteException {
-		if(this.mapaNomeIdAtivos.containsKey(nome)){
+    	if(this.mapaNomeIdAtivos.containsKey(nome)){
+    		System.out.println("Tentativa de cadastro falhou");
 			return -1; // Nome já existe.
-		}else if(idsPartidasDisponiveis.size() == 0){
-			return -2; // Número de partidas/jogadores foi excedido.
 		}else{
 			// Atribuição do identificador
 			try {
-				idsPartidasDisponiveisMutex.acquire();
 				idsDisponiveisMutex.acquire();
 				nomeJogadorMutex.acquire();
 				
 				int idJogador = idsDisponiveis.poll();
 				this.mapaNomeIdAtivos.put(nome, idJogador); // registra nome e id
 				mapaIdNomeAtivos[idJogador] = nome;
-				int idPartida = idsPartidasDisponiveis.poll(); // tira da fila de tokens de partidas
-				
-				idsPartidasDisponiveisMutex.release();
-				idsDisponiveisMutex.release();
+				System.out.println("Registrado o nome "+nome+" para o usuário"+idJogador);
 				nomeJogadorMutex.release(); 
+				idsDisponiveisMutex.release();
 				
-				System.out.println("Registrando player "+idJogador+" como "+nome);
-				
-				// Processo de a tribuição do jogador a uma partida
-				synchronized (partidas[idPartida]) {
-					KingsValleyGame partida = partidas[idPartida];
-					if(partida.isEmptyGame()) { // se existe  partida vazia, set player 1
-						System.out.println("Player "+idJogador+" entrou na partida " +
-								idPartida + " (nova partida foi criada)");
-						partida.setJogador1(idJogador, nome);		
-						idsPartidasDisponiveisMutex.acquire();
-						idsPartidasDisponiveis.addFirst(idPartida);
-						idsPartidasDisponiveisMutex.release();
-					}else {	// se existe partida com um player, set player 2
-						System.out.println("Player "+idJogador+" entrou na partida " + 
-								idPartida + " (partida estava em aguardo)");
-						partida.setJogador2(idJogador, nome);
-						idsPartidasAtivasMutex.acquire();
-						idsPartidasAtivas.add(idPartida);
-						idsPartidasAtivasMutex.release();
-					}
+				for (int idPartida = 0; idPartida < totalPartidas; idPartida++) {
+					synchronized (partidas[idPartida]) {
+						KingsValleyGame partida = partidas[idPartida];
+						if(partida.ehPartidaAguardandoJogador()) {
+							System.out.println("Player "+idJogador+" ["+nome+"] entrou na partida " + 
+									idPartida + " (partida estava em aguardo)");
+							partida.setJogador2(idJogador, nome);
+							atualizaIndiceUsuarioPartida(idJogador, idPartida);
+							return idJogador;
+						}
+	    			}
 				}
-				indiceUsuarioPartidaMutexes[idJogador].acquire();
-				indiceUsuarioPartida[idJogador] = idPartida;
-				indiceUsuarioPartidaMutexes[idJogador].release();
-				return idJogador;
+				for (int idPartida = 0; idPartida < totalPartidas; idPartida++) {
+					synchronized (partidas[idPartida]) {
+						KingsValleyGame partida = partidas[idPartida];
+						if(partida.ehPartidaVazia()) {
+							System.out.println("Player "+idJogador+" ["+nome+"] entrou na partida " +
+									idPartida + " (nova partida foi criada)");
+							partida.setJogador1(idJogador, nome);
+							atualizaIndiceUsuarioPartida(idJogador, idPartida);
+							return idJogador;
+						}
+	    			}
+				}	
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				return -3; // se houver algum erro
 			}
 		}
-    
+    	return -3;
     }
 
     @Override
@@ -236,7 +181,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 	    	if(idPartida >= 0) {
 	    		synchronized (partidas[idPartida]) {
 	    			KingsValleyGame partida = partidas[idPartida]; 
-		    		if(partida.partidaEncerrada()) {
+		    		if(partida.ehPartidaEncerrada()) {
 		    			indiceUsuarioPartidaMutexes[idJogador].release();
 		    	    	System.out.println("Ocorreu um erro, tentativa de fechamento duplicada!");
 		    			return -1; // retorna erro, pois estou tentando encerrar duas vezes a partida
@@ -269,9 +214,9 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
         	if(idPartida >= 0) {	
         		synchronized (partidas[idPartida]) {
 	        		KingsValleyGame partida = partidas[idPartida];
-	        		if(partida.aguardandoJogador()){
+	        		if(partida.ehPartidaAguardandoJogador()){
 		        		return 0; // esperando por player	
-	        		}else if(partida.emJogo()) {
+	        		}else if(partida.ehPartidaEmJogo()) {
 		        		if(partida.ehMinhaVez(idJogador) == 1) { // eu que jogo?
 		        			indiceUsuarioPartidaMutexes[idJogador].release();
 		        			return 1; // sim, há partida e o jogador inicia jogando
@@ -280,7 +225,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 		        			indiceUsuarioPartidaMutexes[idJogador].release();
 		        			return 2; // sim, há partida e o jogador é o segundo a jogar.
 		        		}
-		        	}else if(partida.partidaEncerrada()) {
+		        	}else if(partida.ehPartidaEncerrada()) {
 		        		indiceUsuarioPartidaMutexes[idJogador].release();
 		        		return -2; // limite de tempo acabou mas partida ainda não foi deletada 
 		        	}else {
@@ -318,6 +263,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 		    			indiceUsuarioPartidaMutexes[idJogador].release();
 			    		return nome;
 		    		}
+		    		System.out.println("oponente nulo");
 				}
 	    	}
 	    	indiceUsuarioPartidaMutexes[idJogador].release();
@@ -331,10 +277,9 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     
     @Override 
     public int ehMinhaVez(int idJogador) throws RemoteException {
-    	
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // verifica se playerId é inválido
         	return -1;
-    	
+    		System.out.println("Jogador "+idJogador+ " está consultando se é sua vez");
     	try {
 			indiceUsuarioPartidaMutexes[idJogador].acquire();		
 	    	int idPartida = indiceUsuarioPartida[idJogador];
@@ -380,18 +325,18 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     @Override 
     public int movePeca(int idJogador, int lin, int col, int dir) throws RemoteException {
     	
-    	System.out.println("Jogador "+idJogador+ " deseja movimentar sua peça");
-    	
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // testa se playerId é inválido
     		return 0; 
     	try {
 			indiceUsuarioPartidaMutexes[idJogador].acquire();
 	    	int idPartida = indiceUsuarioPartida[idJogador];
 	    	if(idPartida >= 0) { // é id válido de uma partida
-				synchronized (partidas[idPartida]) {
+	    		System.out.println("Jogador "+idJogador+ " deseja movimentar sua peça "+
+	    					"na partida "+idPartida);
+	        	synchronized (partidas[idPartida]) {
 					KingsValleyGame partida = partidas[idPartida]; 
 					int ret = 0;
-					if(partida.partidaEncerrada())
+					if(partida.ehPartidaEncerrada())
 		    			ret = -2; // teve sua partida encerrada
 					else 
 						ret = partida.movePeca(idJogador, lin, col, Direcao.getDirecao(dir));

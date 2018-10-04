@@ -1,5 +1,13 @@
 package enums;
 
+/*
+*
+* Possíveis direções utilizadas para movimentação das peças.
+*
+* @author Jovani Brasil
+* @email jovanibrasil@gmail.com
+*  
+*/
 public enum Direcao {
 	
 	Direita, DiagonalDireitaInferior, Baixo, DiagonalEsquerdaInferior,
@@ -13,6 +21,13 @@ public enum Direcao {
 			direcoes[idx++] = d;
 	}
 	
+	/*
+	 * Retorna um enum Direção de acordo com o inteiro de direção. 
+	 * 
+	 * @param direcao		Valor inteiro que se deseja obter o enum.
+	 * @return 				Enum da direção buscada.
+	 * 
+	 */
 	public static Direcao getDirecao(int direcao) {
 		return direcoes[direcao];
 	}

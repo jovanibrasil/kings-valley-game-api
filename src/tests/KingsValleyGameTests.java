@@ -37,7 +37,7 @@ class KingsValleyGameTests {
 	void testNewGame() {
 		String result = "s - - - S \n" + 
 				"s - - - S \n" + 
-				"k - - - K \n" + 
+				"r - - - R \n" + 
 				"s - - - S \n" + 
 				"s - - - S \n\n";
 		Assert.assertEquals(result, this.game.obtemTabuleiro());

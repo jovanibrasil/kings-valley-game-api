@@ -27,7 +27,9 @@ public class KingsValleyServerTests {
 	 */
 	@Test
 	void testRegistraJogador() {
+		System.out.println("\n\ntestRegistraJogador()");
 		try {
+			Thread.sleep(1000);
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
 			int id = server.registraJogador("Jovani1");
@@ -43,7 +45,9 @@ public class KingsValleyServerTests {
 	 */
 	@Test
 	void testRegistraJogadorOponente() {
+		System.out.println("\n\ntestRegistraJogadorOponente()");
 		try {
+			Thread.sleep(1000);
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
 			int id1 = server.registraJogador("Jovani1");
@@ -60,13 +64,15 @@ public class KingsValleyServerTests {
 	 * do player 2 (Jovani2), que é o player 1 (Jovani1).
 	 */
 	@Test
-	void testRegistraOponenteInvalido() {
+	void testObtemOponente() {
 		try {
+			System.out.println("\n\ntestRegistraOponenteInvalido()");
+			Thread.sleep(1000);
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
-			int id = server.registraJogador("Jovani1");
+			int idJogador = server.registraJogador("Jovani1");
 			server.registraJogador("Jovani2");
-			String name = server.obtemOponente(id);
+			String name = server.obtemOponente(idJogador);
 			Assert.assertEquals("Jovani2", name);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,6 +87,8 @@ public class KingsValleyServerTests {
 	@Test
 	void testObtemOponenteComIdJogadorInvalido() {
 		try {
+			System.out.println("\n\ntestObtemOponenteComIdJogadorInvalido");
+			Thread.sleep(1000);
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
 			server.registraJogador("Jovani1");
@@ -100,6 +108,8 @@ public class KingsValleyServerTests {
 	@Test
 	void testRegistraQuatroJogadores() {
 		try {
+			System.out.println("\n\ntestRegistraQuatroJogadores()");
+			Thread.sleep(1000);
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
 			int id1 = server.registraJogador("Jovani1");
@@ -132,6 +142,8 @@ public class KingsValleyServerTests {
 	@Test
 	void testAbandonaPartidaNaoIniciada() {
 		try {
+			System.out.println("\n\ntestAbandonaPartidaNaoIniciada()");
+			Thread.sleep(1000);
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
 			int id1 = server.registraJogador("Jovani1");
@@ -150,11 +162,12 @@ public class KingsValleyServerTests {
 	@Test
 	void testTimeoutIniciacaoPartida() {
 		try {
-			System.out.println("\n\n-->testTimeoutIniciacaoPartida()");
+			System.out.println("\n\ntestTimeoutIniciacaoPartida()");
+			Thread.sleep(5000);
 			server = new KingsValleyImpl(10);
-			Thread.sleep(1000);
+			//Thread.sleep(1000);
 			int idJovani = server.registraJogador("jovani");
-			Thread.sleep(1000);
+			//Thread.sleep(1000);
 			// não tem partida ainda (ainda não existe oponente)
 			Assert.assertEquals(-2, server.ehMinhaVez(idJovani)); 
 			Thread.sleep(6000); 
@@ -175,6 +188,7 @@ public class KingsValleyServerTests {
 	@Test
 	void testTimeoutJogada() {
 		try {
+			Thread.sleep(1000);
 			System.out.println("\n\n-->testTimeoutJogada()");
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
@@ -184,6 +198,47 @@ public class KingsValleyServerTests {
 			Thread.sleep(4000);
 			Assert.assertEquals(5, server.ehMinhaVez(idJovani1)); // ganhou por wo
 			Thread.sleep(4000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	void nomesRepetidos() {
+		try {
+			Thread.sleep(1000);
+			System.out.println("\n\n-->testTimeoutJogada()");
+			server = new KingsValleyImpl(10);
+			Thread.sleep(1000);
+			int idJovani1 = server.registraJogador("jovani1");
+			server.registraJogador("jovani2");		
+			Thread.sleep(8000);
+			server.registraJogador("jovani2");		
+			server.registraJogador("jovani2");		
+			server.registraJogador("jovani2");		
+			server.registraJogador("jovani2");		
+			server.registraJogador("jovani1");		
+			
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Testa situação de timeout de jogada. O jogador que restou na partida
+	 * é declaro vencedor por wo (walkover que significa "vitória fácil").
+	 */
+	@Test
+	void testServidorVazio() {
+		try {
+			System.out.println("\n\ntestServidorVazio()");
+			KingsValleyImpl server2 = new KingsValleyImpl(10);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -219,11 +274,13 @@ public class KingsValleyServerTests {
 			server.movePeca(idJovani3, 0, 3, 2); // baixo
 			server.movePeca(idJovani4, 2, 1, 0); //direita
 			
-			//System.out.println(this.game.obtemTabuleiro());
+		
 			assertEquals(3, server.ehMinhaVez(idJovani1));
 			assertEquals(2, server.ehMinhaVez(idJovani2));
 			assertEquals(3, server.ehMinhaVez(idJovani3));
 			assertEquals(2, server.ehMinhaVez(idJovani4));
+			
+			//System.out.println(this.game.obtemTabuleiro());
 			
 			Thread.sleep(9000);
 			idJovani3 = server.registraJogador("jovani3");

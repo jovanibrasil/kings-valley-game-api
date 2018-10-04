@@ -14,11 +14,12 @@ import jogo.cliente.KingsValleyClient;
 
 class KingsValleyClientTests {
 
-	private static KingsValleyClient game;
+	private static KingsValleyClient cliente1;
+	private static KingsValleyClient cliente2;
 	
 	@BeforeAll
 	public static void beforeAll(){
-		game = new KingsValleyClient();
+		//game = new KingsValleyClient();
 	}
 	
 	@BeforeEach

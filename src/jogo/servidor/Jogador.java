@@ -1,9 +1,11 @@
 package jogo.servidor;
 
 import enums.EstadoJogador;
-import enums.OrdemJogada;
+import enums.TipoPecas;
 
 /*
+*
+* Implementação de um jogador do KingsValley.
 *
 * @author Jovani Brasil
 * @email jovanibrasil@gmail.com
@@ -16,7 +18,6 @@ public class Jogador {
 	private String nome;
 	private char reiChar;
 	private char soldadoChar;
-	
 	private EstadoJogador estado;
 	
 	public Jogador() {
@@ -27,10 +28,26 @@ public class Jogador {
 		this.idJogador = -1;
 		this.reiChar = ' ';
 		this.soldadoChar = ' ';
-		this.estado = EstadoJogador.EmJogo;
+		this.estado = EstadoJogador.NaoInicializado;
 		this.nome = "";
 	}
 	
+	/*
+	 * Verifica se uma determina peça é do jogador em questão. 
+	 * 
+	 * @param peca 		é a peça que se deseja verificar (char) 
+	 * @return 			true se a peça é do jogador e false caso contrário
+	 * 
+	 */
+	public boolean ehMinhaPeca(char peca) {
+		if(peca == this.reiChar || peca == this.soldadoChar)
+			return true;
+		return false;
+	}
+	
+	/*
+	 * Getters and setters
+	 */
 	public void setIdJogador(int idJogador) {
 		this.idJogador = idJogador;
 	}
@@ -46,16 +63,6 @@ public class Jogador {
 	public String getNome() {
 		return this.nome;
 	}
-
-	public void setOrdemJogador(OrdemJogada ordemJogada) {
-		if(ordemJogada == OrdemJogada.Primeiro) {
-			this.reiChar = 'k';
-			this.soldadoChar = 's';
-		}else {
-			this.reiChar = 'K';
-			this.soldadoChar = 'S';
-		}
-	}
 	
 	public char getReiChar() {
 		return this.reiChar;
@@ -65,20 +72,6 @@ public class Jogador {
 		return this.soldadoChar;
 	}
 	
-	/*
-	 * Verifica se uma peça é do jogador. 
-	 * 
-	 * @param peca é a peça que se deseja verificar (char) 
-	 * 
-	 * @return true se a peça é do jogador e false caso contrário
-	 * 
-	 */
-	public boolean ehMinhaPeca(char peca) {
-		if(peca == this.reiChar || peca == this.soldadoChar)
-			return true;
-		return false;
-	}
-
 	public void setEstado(EstadoJogador estado) {
 		this.estado = estado;
 	}
@@ -87,5 +80,18 @@ public class Jogador {
 		return this.estado;
 	}
 	
+	/*
+	 * Define a ordem de jogada, 
+	 * 
+	 */
+	public void setTipoPecas(TipoPecas tipoPecas) {
+		if(tipoPecas == TipoPecas.Claras) {
+			this.reiChar = 'r';
+			this.soldadoChar = 's';
+		}else {
+			this.reiChar = 'R';
+			this.soldadoChar = 'S';
+		}
+	}
 	
 }

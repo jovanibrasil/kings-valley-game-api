@@ -2,6 +2,17 @@ package jogo.servidor;
 
 /**
 *
+* Implementação da classe tabuleiro. O tabuleiro foi representado como uma lista, tal que
+* seus indexes podem ser entendidos da seguinte forma.
+* 
+* 				Tabuleiro
+*								   min  max
+*		's', '-', '-', '-', 'S' 	0  - 4  (Linha 0)
+*		's', '-', '-', '-', 'S' 	5  - 9  (Linha 1)
+*		'r', '-', '-', '-', 'R' 	10 - 14 (Linha 2)
+*		's', '-', '-', '-', 'S' 	15 - 19 (Linha 3)
+*		's', '-', '-', '-', 'S'  	20 - 24 (Linha 4)
+*
 * @author Jovani Brasil
 * @email jovanibrasil@gmail.com
 *  
@@ -13,7 +24,7 @@ public class Tabuleiro {
 	int rei1Pos, rei2Pos;
 	
 	public Tabuleiro() {
-		this.tabuleiro = new char[25];
+		this.tabuleiro = new char[25]; // tabuleiro é uma lista
 		this.inicializaTabuleiro();
 	}
 	
@@ -30,7 +41,7 @@ public class Tabuleiro {
 	public void inicializaTabuleiro() {
 		this.tabuleiro = new char[] { 's', '-', '-', '-', 'S', // 0 - 4 
 				's', '-', '-', '-', 'S', // 5 - 9
-				'k', '-', '-', '-', 'K', // 10 - 14
+				'r', '-', '-', '-', 'R', // 10 - 14
 				's', '-', '-', '-', 'S', // 15 - 19
 				's', '-', '-', '-', 'S'  }; // 20 - 24
 	}
