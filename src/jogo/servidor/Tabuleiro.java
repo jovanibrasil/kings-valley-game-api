@@ -118,7 +118,6 @@ public class Tabuleiro {
 	 * 	1) fim do tabuleiro
 	 *	2) encontrar uma outra peca (nao e possivel pular uma peca)
 	 * 
-	 * TODO
 	 * A única peca que pode parar no centro é rei, porém o rei também não poderá 
 	 * parar no centro se houver mais casas no sentido. Já os soldados podem apenas 
 	 * passar pelo centro mas não podem parar.
@@ -138,6 +137,10 @@ public class Tabuleiro {
 				this.rei2Pos = pos == this.rei2Pos ? newPos : pos;
 				pos = newPos;
 			}else { //não houve um movimento válido
+				if(pos == 12 && (this.tabuleiro[originalPos] == 's'
+						|| this.tabuleiro[originalPos] == 'S')) {
+					return false; // soldado não pode parar no centro
+				}
 				//System.out.println("Movimento inválido encontrado");
 				if(pos != originalPos) { // houve algum movimento anterior
 					// realiza a atualização do tabuleiro

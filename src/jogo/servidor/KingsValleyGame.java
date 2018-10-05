@@ -354,7 +354,7 @@ public class KingsValleyGame {
     	if(this.estadoPartida == EstadoPartida.PartidaAguardandoOponente) {
     		this.temporizador++; // tempo entre inicialização e entrada do segundo jogador
     		//System.out.println("temporizador de partida: "+ this.temporizador);
-    		if(temporizador == 6) { // mudei 120 para 6 segundos (para testes)
+    		if(temporizador == 120) { // mudei 120 para 6 segundos (para testes)
     			System.out.println("t="+time+" Estado partida Aguardando -> AguardandoDestruicao");
     			this.estadoPartida = EstadoPartida.AguardandoDestruicao;
     			this.temporizador = 0;
@@ -362,7 +362,7 @@ public class KingsValleyGame {
     	}else if(this.estadoPartida == EstadoPartida.PartidaEmJogo){
     		this.temporizador++; // tempo desde a última jogada
     		//System.out.println("temporizador de partida: "+ this.temporizador);
-    		if(this.temporizador == 3) { // mudei de 60 para 3 (para testes)
+    		if(this.temporizador == 60) { // mudei de 60 para 3 (para testes)
     			System.out.println("t="+time+" Estado partida EmJogo -> Encerrada");
     			this.estadoPartida = EstadoPartida.PartidaEncerravel;
     			this.temporizador = 0;
@@ -371,7 +371,7 @@ public class KingsValleyGame {
     		}
     	}else if(this.estadoPartida == EstadoPartida.PartidaEncerrada){
     		this.temporizador++; // tempo desde o encerramento
-    		if(this.temporizador == 3) { // de 60 para 3 segundos (para testes)
+    		if(this.temporizador == 60) { // mudei de 60 para 3 segundos (para testes)
     			System.out.println("t="+time+" Estado partida Encerrada -> AguardandoDestruicao	");
     			this.estadoPartida = EstadoPartida.AguardandoDestruicao;
     			this.temporizador = 0;

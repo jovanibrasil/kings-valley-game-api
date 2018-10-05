@@ -2,6 +2,8 @@ package jogo.cliente;
 
 /**
 *
+* Classe Main para chamadas de teste do cliente.
+*
 * @author Jovani Brasil
 * @email jovanibrasil@gmail.com
 *  
@@ -120,7 +122,42 @@ public class Main {
 	/*
 	 * Teste de duas partidas occorendo em simultâneo.
 	 */
-	public static void testPartidasSimultaneas(KingsValleyClient cliente1, KingsValleyClient cliente2){
+	public static void testPartidaComDoisClients(KingsValleyClient cliente1, KingsValleyClient cliente2){
+		try {
+		
+			System.out.println("Testando duas partidas simultâneas");
+			Thread.sleep(1000);
+			int idJovani1 = cliente1.registraJogador("jovani1");
+			int idJovani2 = cliente2.registraJogador("jovani2");		
+			
+			cliente1.movePeca(idJovani1, 0, 0, 0); //direita
+			cliente2.movePeca(idJovani2, 2, 4, 4); // esquerda		
+			cliente1.movePeca(idJovani1, 3, 0, 0); //direita
+			cliente2.movePeca(idJovani2, 1, 4, 3); // diagonal esquerda inferior
+			cliente1.movePeca(idJovani1, 0, 3, 2); // baixo
+			cliente2.movePeca(idJovani2, 2, 1, 0); //direita
+			
+			/// Ordem dos resultados = 32
+			//System.out.println(this.game.obtemTabuleiro());
+			int ret = cliente1.ehMinhaVez(idJovani1);
+			System.out.println("Status da partida: "+ret+" (2 é vitória) e 3 é derrota)");
+			ret = cliente1.ehMinhaVez(idJovani2);
+			System.out.println("Status da partida: "+ret+" (2 é vitória) e 3 é derrota)");
+			
+			System.out.println(cliente1.obtemTabuleiro(idJovani1));
+			
+			Thread.sleep(5000);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Teste de duas partidas occorendo em simultâneo. Note que eu estou jogando uma partida
+	 * com cada cliente, só para efeitos de teste de múltiplas partidas ocorrendo simultaneamente.
+	 */
+	public static void testPartidasSimultaneas1(KingsValleyClient cliente1, KingsValleyClient cliente2){
 		try {
 		
 			System.out.println("Testando duas partidas simultâneas");
@@ -164,10 +201,61 @@ public class Main {
 		}
 	}
 	
+
+	/*
+	 * Teste de duas partidas occorendo em simultâneo com quatro clientes
+	 */
+	public static void testPartidasSimultaneas2(KingsValleyClient cliente1, KingsValleyClient cliente2,
+			KingsValleyClient cliente3, KingsValleyClient cliente4){
+		try {
+		
+			System.out.println("Testando duas partidas simultâneas");
+			Thread.sleep(1000);
+			int idJovani1 = cliente1.registraJogador("jovani1");
+			int idJovani2 = cliente2.registraJogador("jovani2");		
+			
+			cliente1.movePeca(idJovani1, 0, 0, 0); //direita
+			cliente2.movePeca(idJovani2, 2, 4, 4); // esquerda
+			int idJovani3 = cliente3.registraJogador("jovani3");		
+			cliente1.movePeca(idJovani1, 3, 0, 0); //direita
+			int idJovani4 = cliente4.registraJogador("jovani4");
+			cliente3.movePeca(idJovani3, 0, 0, 0); //direita
+			cliente4.movePeca(idJovani4, 2, 4, 4); // esquerda
+			cliente2.movePeca(idJovani2, 1, 4, 3); // diagonal esquerda inferior
+			cliente3.movePeca(idJovani3, 3, 0, 0); //direita
+			cliente4.movePeca(idJovani4, 1, 4, 3); // diagonal esquerda inferior
+			cliente1.movePeca(idJovani1, 0, 3, 2); // baixo
+			cliente2.movePeca(idJovani2, 2, 1, 0); //direita
+			cliente3.movePeca(idJovani3, 0, 3, 2); // baixo
+			cliente4.movePeca(idJovani4, 2, 1, 0); //direita
+			
+			/// Ordem dos resultados = 3232
+			//System.out.println(this.game.obtemTabuleiro());
+			int ret = cliente1.ehMinhaVez(idJovani1);
+			System.out.println("Status da partida: "+ret+" (2 é vitória) e 3 é derrota)");
+			ret = cliente2.ehMinhaVez(idJovani2);
+			System.out.println("Status da partida: "+ret+" (2 é vitória) e 3 é derrota)");
+			ret = cliente3.ehMinhaVez(idJovani3);
+			System.out.println("Status da partida: "+ret+" (2 é vitória) e 3 é derrota)");
+			ret = cliente4.ehMinhaVez(idJovani4);
+			System.out.println("Status da partida: "+ret+" (2 é vitória) e 3 é derrota)");
+			
+			System.out.println(cliente1.obtemTabuleiro(idJovani1));
+			
+			Thread.sleep(5000);
+			idJovani3 = cliente1.registraJogador("jovani3");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 		
 		KingsValleyClient cliente1 = new KingsValleyClient();
 		KingsValleyClient cliente2 = new KingsValleyClient();
+		KingsValleyClient cliente3 = new KingsValleyClient();
+		KingsValleyClient cliente4 = new KingsValleyClient();
 		
 		// Registra um jogador
 		//testRegistraJogador(cliente1);
@@ -181,14 +269,22 @@ public class Main {
 		// Abandona uma partida
 		//testAbandonaPartidaNaoIniciada(cliente1);
 		
+		
+		
+		// Testa uma partida com dois clients
+		//testPartidaComDoisClients(cliente1, cliente2);
+		
+		// Duas partidas simultâneas1 (com dois clientes)
+		//testPartidasSimultaneas1(cliente1, cliente2);
+		
 		// Testa timeout de jogada
 		//testTimeoutJogada(cliente1, cliente2);
 		
 		// Testa timeout da inicialização da partida.
 		//testTimeoutIniciacaoPartida(cliente1);
-		
-		// Duas partidas simultâneas
-		testPartidasSimultaneas(cliente1, cliente2);
+				
+		// Duas partidas simultâneas1 (com quatro clientes)
+		testPartidasSimultaneas2(cliente1, cliente2, cliente3, cliente4);
 				
 		
 	}

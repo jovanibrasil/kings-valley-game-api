@@ -123,7 +123,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     @Override 
     public int registraJogador(String nome) throws RemoteException {
     	if(this.mapaNomeIdAtivos.containsKey(nome)){
-    		System.out.println("Tentativa de cadastro falhou");
+    		//System.out.println("Tentativa de cadastro falhou");
 			return -1; // Nome já existe.
 		}else{
 			// Atribuição do identificador
@@ -134,7 +134,6 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 				int idJogador = idsDisponiveis.poll();
 				this.mapaNomeIdAtivos.put(nome, idJogador); // registra nome e id
 				mapaIdNomeAtivos[idJogador] = nome;
-				System.out.println("Registrado o nome "+nome+" para o usuário"+idJogador);
 				nomeJogadorMutex.release(); 
 				idsDisponiveisMutex.release();
 				
@@ -369,11 +368,16 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 			nomeJogadorMutex.release();
 			
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 	}
     
+    /*
+     * Obtêm os ids dos jogadores de uma partida e os devolve para
+     * a lista de Ids disponíveis. Esse método é chamado especialmente 
+     * na destruição de uma partida. 
+     * 
+     */
     private void devolveIdsJogadores(int idPartida) {
     	try {
     		KingsValleyGame partida = partidas[idPartida];

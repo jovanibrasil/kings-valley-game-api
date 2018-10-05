@@ -300,15 +300,6 @@ class KingsValleyGameTests {
 		assertEquals(-1, res); // retorna -1, pq não existe player com id 1 na sala
 	}
 	
-/*
-* 	
-* 			 2 é vencedor
-* 			 3 se é o perdedor
-* 			 4 quando houver empate
-* 			 5 vencedor por WO
-* 			 6 perdedor por WO
-*/
-	
 	@Test
 	void testPartidaCompleta() {
 		
@@ -332,6 +323,17 @@ class KingsValleyGameTests {
 		assertEquals(2, this.game.ehMinhaVez(2));
 		
 	}
+	
+	
+	/*
+	*		TODO Criar testes para:
+	*			 soldado no meio 	
+	* 			 2 é vencedor
+	* 			 3 se é o perdedor
+	* 			 4 quando houver empate
+	* 			 5 vencedor por WO
+	* 			 6 perdedor por WO
+	*/
 	
 	
 	

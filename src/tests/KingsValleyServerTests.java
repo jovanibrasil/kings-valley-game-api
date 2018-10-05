@@ -205,6 +205,10 @@ public class KingsValleyServerTests {
 		}
 	}
 	
+	/*
+	 * Não são aceitos nomes repetidos enquanto existem partidas ativas
+	 * com o nome requisitado.
+	 */
 	@Test
 	void nomesRepetidos() {
 		try {
@@ -212,7 +216,7 @@ public class KingsValleyServerTests {
 			System.out.println("\n\n-->testTimeoutJogada()");
 			server = new KingsValleyImpl(10);
 			Thread.sleep(1000);
-			int idJovani1 = server.registraJogador("jovani1");
+			server.registraJogador("jovani1");
 			server.registraJogador("jovani2");		
 			Thread.sleep(8000);
 			server.registraJogador("jovani2");		
