@@ -78,7 +78,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 						synchronized (partidas[idPartida]) {
 							KingsValleyGame partida = partidas[idPartida];
 							if(!partida.ehPartidaVazia()) {
-								System.out.println("t="+time+" Atualizando a partida " + idPartida);
+								//System.out.println("t="+time+" Atualizando a partida " + idPartida);
 			    	    		partida.atualizaRestricoesTemporais(time);
 			    	    		if(partida.ehEncerravel()) {
 			    	    			 System.out.println("t="+time+" a partida tornou-se encerrável");

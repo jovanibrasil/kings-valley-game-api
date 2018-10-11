@@ -12,8 +12,7 @@ import jogo.interfaces.KingsValleyInterface;
 * Note que foram implementados métodos para realização das chamadas remotas, de forma
 * que o cliente pode ser instanciado e as chamadas então devidamente realizadas.
 *
-* TODO validar nome como parâmrtro
-* TODO validar se id != -1 em todos os métodos
+* TODO salvar erros em um arquivo de log
 *
 * @author Jovani Brasil
 * @email jovanibrasil@gmail.com
@@ -22,31 +21,38 @@ import jogo.interfaces.KingsValleyInterface;
 
 public class KingsValleyClient {
 	
-	public KingsValleyInterface game;
-	
+	private KingsValleyInterface game;
 	private int idJogador = -1;
 	
 	public KingsValleyClient() {
-		try {
-			this.game = (KingsValleyInterface) Naming.lookup("//localhost/kv");
-		} catch (Exception e) {
-			System.out.println ("KingsValleyClient failed:");
-			e.printStackTrace();
+		while (true) {
+			try {
+				this.game = (KingsValleyInterface) Naming.lookup("//localhost/kv");
+				System.out.println("A conexão com KingsValleyServer foi iniciada com sucesso.");
+				break;
+			} catch (Exception e) {
+				System.out.println ("A conexão com KingsValleyServer falhou, tentando novamente em 5 segundos ...");
+			}
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {}
 		}
 	}
 	
 	public void start() {
 		
+		String paramErrorMsg = "Número de parâmetros inválido para o comando.";
+				
 		while(true) {
 			
-			String ajuda = "Comandos:\n"
-					+ "0 - Entrar em uma partida [Nome do Jogador]"
-					+ "1 - Encerrar partida atual"
-					+ "2 - Verificar status da partida"
-					+ "3 - Obter oponente"
-					+ "4 - Verifica se é minha vez"
-					+ "5 - Obtem tabuleiro"
-					+ "6 - Movimenta peça [Linha Coluna Direção]";
+			String ajuda = "Código	| Descrição\n"
+					+ "0	| Entrar em uma partida [Nome do Jogador]\n"
+					+ "1	| Encerrar partida atual\n"
+					+ "2	| Verificar status da partida\n"
+					+ "3	| Obter oponente\n"
+					+ "4	| Verifica se é minha vez\n"
+					+ "5	| Obtem tabuleiro\n"
+					+ "6	| Movimenta peça [Linha Coluna Direção]\n";
 			
 			System.out.println(ajuda);
 			
@@ -55,14 +61,15 @@ public class KingsValleyClient {
 			
 			// pega comando
 			Scanner scanner = new Scanner(System.in);
-			System.out.println("Entre com o seu commando: ");
-			String[] cmd = scanner.next().split(" ");
+			System.out.println("Entre com o seu código de commando: ");
+			String[] cmd = scanner.nextLine().split(" ");
 			String mensagemResultado = "";
 			
 			// realiza parsing do comando e executa rotina no servidor
 			switch (Integer.parseInt(cmd[0])) {
 			case 0:
-				mensagemResultado = this.registraJogador(cmd[1]);
+				mensagemResultado = cmd.length == 2
+					? this.registraJogador(cmd[1]) : paramErrorMsg;
 				break;
 			case 1:
 				mensagemResultado = this.encerraPartida();
@@ -71,7 +78,7 @@ public class KingsValleyClient {
 				mensagemResultado = this.temPartida();
 				break;
 			case 3:
-				mensagemResultado = this.obtemTabuleiro();
+				mensagemResultado = this.obtemOponente();
 				break;
 			case 4:
 				mensagemResultado = this.ehMinhaVez();
@@ -80,14 +87,15 @@ public class KingsValleyClient {
 				mensagemResultado = this.obtemTabuleiro();
 				break;
 			case 6:
-				mensagemResultado = this.movePeca(cmd[0], cmd[1], cmd[2]);
+				mensagemResultado = cmd.length == 4 
+					? this.movePeca(cmd[0], cmd[1], cmd[2]) : paramErrorMsg;
 				break;
 			default:
 				System.out.println("Comando desconhecido");
 				break;
 			}
 			// faz print do resultado
-			System.out.println(mensagemResultado);
+			System.out.println(mensagemResultado+"\n\n\n\n\n\n");
 		}
 	}
 	
@@ -97,20 +105,23 @@ public class KingsValleyClient {
      *  @param nome				String com o nome do usuário/jogador.
 	 *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      */
-    public String registraJogador(String name) {
+    private String registraJogador(String name) {
         try {
-    		int retorno = this.game.registraJogador(name);
-			if(retorno == -1) {
-				return "Nome de jogador já cadastrado.";
-			}else if(retorno == -2) {
-				return "Número máximo de usuários no servidor foi atingido.";
-			}else {
-				return "Você foi cadastrado com sucesso.";
-			}
+        	if(!name.equals("")) {
+	        	int retorno = this.game.registraJogador(name);
+				if(retorno == -1) {
+					return "Nome de jogador já cadastrado.";
+				}else if(retorno == -2) {
+					return "Número máximo de usuários no servidor foi atingido.";
+				}else {
+					this.idJogador = retorno;
+					return "Você foi cadastrado com sucesso.";
+				}
+        	}
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			return "Houve um erro ao registrar você no servidor.";
 		}
+        return "Houve um erro ao registrar você no servidor.";
     }
 
     /*
@@ -119,12 +130,14 @@ public class KingsValleyClient {
      *	@param idJogador 		Identificação do usuário.
      *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      */
-    public String encerraPartida() {
+    private String encerraPartida() {
     	try {
-			int retorno = this.game.encerraPartida(this.idJogador);
-			if(retorno == 0) {
-				return "Sua partida foi encerrada com sucesso.";
-			}
+    		if(this.idJogador >= 0) {
+				int retorno = this.game.encerraPartida(this.idJogador);
+				if(retorno == 0) {
+					return "Sua partida foi encerrada com sucesso.";
+				}
+    		}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -138,21 +151,23 @@ public class KingsValleyClient {
      *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      *	
      * */
-    public String temPartida() {
+    private String temPartida() {
         try {
-			int retorno = this.game.temPartida(this.idJogador);
-			switch (retorno) {
-				case -2:
-					return "Tempo de espera esgotado.";
-				case -1:
-					return "Houve um erro ao verificar sua partida";
-				case 0:
-					return "Ainda não há partida.";
-				case 1:
-					return "Há partida e você começa jogando.";
-				case 2:
-					return "Há partida e você é o segundo a jogar.";
-			}
+        	if(this.idJogador >= 0) {
+				int retorno = this.game.temPartida(this.idJogador);
+				switch (retorno) {
+					case -2:
+						return "Tempo de espera esgotado.";
+					case -1:
+						return "Houve um erro ao verificar sua partida";
+					case 0:
+						return "Ainda não há partida.";
+					case 1:
+						return "Há partida e você começa jogando.";
+					case 2:
+						return "Há partida e você é o segundo a jogar.";
+				}
+        	}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -166,11 +181,13 @@ public class KingsValleyClient {
      *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      * 
      * */
-    public String obtemOponente() {
+    private String obtemOponente() {
     	try {
-    		String retorno = this.game.obtemOponente(this.idJogador);
-    		if(retorno != "") {
-    			return "Seu oponente se chama " + retorno;
+    		if(this.idJogador >= 0) {
+	    		String retorno = this.game.obtemOponente(this.idJogador);
+	    		if(retorno != "") {
+	    			return "Seu oponente se chama " + retorno;
+	    		}
     		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -185,11 +202,13 @@ public class KingsValleyClient {
      *	@return 				String vazio em caso de erro ou string representando o tabuleiro de jogo
      * 
      */
-    public String obtemTabuleiro() {
+    private String obtemTabuleiro() {
     	try {
-    		String retorno = this.game.obtemTabuleiro(this.idJogador);
-    		if(retorno != "") {
-    			return retorno;
+    		if(this.idJogador >= 0) {
+	    		String retorno = this.game.obtemTabuleiro(this.idJogador);
+	    		if(retorno != "") {
+	    			return retorno;
+	    		}
     		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -204,27 +223,29 @@ public class KingsValleyClient {
      *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      * 
      * */
-    public String ehMinhaVez() {
+    private String ehMinhaVez() {
         try {
-			int retorno = this.game.ehMinhaVez(this.idJogador);
-			switch (retorno) {
-				case -2:
-					return "Ainda não há dois jogadores na partida.";
-				case 0:
-					return "Não é sua vez.";
-				case 1:
-					return "É a sua vez.";
-				case 2:
-					return "Você é o vencedor.";
-				case 3:
-					return "Você é o perdedor.";
-				case 4:
-					return "Houve empate.";
-				case 5:
-					return "Você venceu por WO.";
-				case 6:
-					return "Você perdeu por WO";
-			}
+        	if(this.idJogador >= 0) {
+				int retorno = this.game.ehMinhaVez(this.idJogador);
+				switch (retorno) {
+					case -2:
+						return "Ainda não há dois jogadores na partida.";
+					case 0:
+						return "Não é sua vez.";
+					case 1:
+						return "É a sua vez.";
+					case 2:
+						return "Você é o vencedor.";
+					case 3:
+						return "Você é o perdedor.";
+					case 4:
+						return "Houve empate.";
+					case 5:
+						return "Você venceu por WO.";
+					case 6:
+						return "Você perdeu por WO";
+				}
+        	}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -249,31 +270,32 @@ public class KingsValleyClient {
      * @return 				Mensagem com o status da requisição realizada pelo jogador.
      * 
      */
-    public String movePeca(String lin, String col, String dir) {
+    private String movePeca(String lin, String col, String dir) {
     	try {
-    		int l = Integer.parseInt(lin);
-    		int c = Integer.parseInt(col);
-    		int d = Integer.parseInt(dir);
-    		
-    		int retorno = this.game.movePeca(this.idJogador, l, c, d);
-    		
-    		switch (retorno) {
-				case -4:					
-					return "Não é a sua vez.";
-				case -3:					
-					return "Parâmetros inválidos.";
-				case -2:					
-					return "Partida ainda não iniciada (apenas você está na partida).";
-				case -1:					
-					return "Jogador não encontrado.";
-				case 0:					
-					return "Movimento desejado é inválido.";
-				case 1:					
-					return "Movimento realizado com sucesso.";
-				case 2:					
-					return "Partida encerrada.";
-			}
-    		
+    		if(this.idJogador >= 0) {
+	    		int l = Integer.parseInt(lin);
+	    		int c = Integer.parseInt(col);
+	    		int d = Integer.parseInt(dir);
+	    		
+	    		int retorno = this.game.movePeca(this.idJogador, l, c, d);
+	    		
+	    		switch (retorno) {
+					case -4:					
+						return "Não é a sua vez.";
+					case -3:					
+						return "Parâmetros inválidos.";
+					case -2:					
+						return "Partida ainda não iniciada (apenas você está na partida).";
+					case -1:					
+						return "Jogador não encontrado.";
+					case 0:					
+						return "Movimento desejado é inválido.";
+					case 1:					
+						return "Movimento realizado com sucesso.";
+					case 2:					
+						return "Partida encerrada.";
+				}
+    		}
     	} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
