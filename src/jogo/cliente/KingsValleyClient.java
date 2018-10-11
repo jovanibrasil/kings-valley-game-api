@@ -1,6 +1,7 @@
 package jogo.cliente;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.Scanner;
 
 import jogo.interfaces.KingsValleyInterface;
 
@@ -11,6 +12,9 @@ import jogo.interfaces.KingsValleyInterface;
 * Note que foram implementados métodos para realização das chamadas remotas, de forma
 * que o cliente pode ser instanciado e as chamadas então devidamente realizadas.
 *
+* TODO validar nome como parâmrtro
+* TODO validar se id != -1 em todos os métodos
+*
 * @author Jovani Brasil
 * @email jovanibrasil@gmail.com
 *  
@@ -19,6 +23,8 @@ import jogo.interfaces.KingsValleyInterface;
 public class KingsValleyClient {
 	
 	public KingsValleyInterface game;
+	
+	private int idJogador = -1;
 	
 	public KingsValleyClient() {
 		try {
@@ -29,71 +35,147 @@ public class KingsValleyClient {
 		}
 	}
 	
+	public void start() {
+		
+		while(true) {
+			
+			String ajuda = "Comandos:\n"
+					+ "0 - Entrar em uma partida [Nome do Jogador]"
+					+ "1 - Encerrar partida atual"
+					+ "2 - Verificar status da partida"
+					+ "3 - Obter oponente"
+					+ "4 - Verifica se é minha vez"
+					+ "5 - Obtem tabuleiro"
+					+ "6 - Movimenta peça [Linha Coluna Direção]";
+			
+			System.out.println(ajuda);
+			
+			if(this.idJogador >=0)
+				System.out.println(this.obtemTabuleiro());
+			
+			// pega comando
+			Scanner scanner = new Scanner(System.in);
+			System.out.println("Entre com o seu commando: ");
+			String[] cmd = scanner.next().split(" ");
+			String mensagemResultado = "";
+			
+			// realiza parsing do comando e executa rotina no servidor
+			switch (Integer.parseInt(cmd[0])) {
+			case 0:
+				mensagemResultado = this.registraJogador(cmd[1]);
+				break;
+			case 1:
+				mensagemResultado = this.encerraPartida();
+				break;
+			case 2:
+				mensagemResultado = this.temPartida();
+				break;
+			case 3:
+				mensagemResultado = this.obtemTabuleiro();
+				break;
+			case 4:
+				mensagemResultado = this.ehMinhaVez();
+				break;
+			case 5:
+				mensagemResultado = this.obtemTabuleiro();
+				break;
+			case 6:
+				mensagemResultado = this.movePeca(cmd[0], cmd[1], cmd[2]);
+				break;
+			default:
+				System.out.println("Comando desconhecido");
+				break;
+			}
+			// faz print do resultado
+			System.out.println(mensagemResultado);
+		}
+	}
+	
 	/*
      * 	Registra o jogador em uma partida.
      * 
      *  @param nome				String com o nome do usuário/jogador.
-	 *	@return 				Identificação do usuário (que corresponde a um número de identificação 
-	 * 							único para este usuário durante uma partida), -1 se este usuário já está 
-	 * 							cadastradoou -2 se o número máximo de jogadores tiver sido atingido.
+	 *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      */
-    public int registraJogador(String name) {
+    public String registraJogador(String name) {
         try {
-    		System.out.println("Registrando jogador ...");
-			return this.game.registraJogador(name);
+    		int retorno = this.game.registraJogador(name);
+			if(retorno == -1) {
+				return "Nome de jogador já cadastrado.";
+			}else if(retorno == -2) {
+				return "Número máximo de usuários no servidor foi atingido.";
+			}else {
+				return "Você foi cadastrado com sucesso.";
+			}
 		} catch (RemoteException e) {
-			System.out.println("Register Player failed");
 			e.printStackTrace();
+			return "Houve um erro ao registrar você no servidor.";
 		}
-		return -3;
     }
 
     /*
      *	Realiza o encerramento de uma partida.
      * 
      *	@param idJogador 		Identificação do usuário.
-     *	@return 				Retorna -1 se houve erro e 0 se tudo ok.
+     *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      */
-    public int encerraPartida(int playerId) {
+    public String encerraPartida() {
     	try {
-			return this.game.encerraPartida(playerId);
+			int retorno = this.game.encerraPartida(this.idJogador);
+			if(retorno == 0) {
+				return "Sua partida foi encerrada com sucesso.";
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return -1;
 		}
+    	return "Houve um ao encerrar a sua partida.";
     }
 
     /*
      *	Verifica se existe partida.
      * 
      *	@param idJogador	 	Identificação do usuário.
-     *	@return 				Retorna o estado da partida, sendo que os possíveis são: -2 (tempo de espera esgotado)
-     * 							-1 (erro), 0 (ainda não há partida), 1 (sim, há partida e o jogador inicia jogando) 
-     *       					2 (sim, há partida e o jogador é o segundo a jogar).
+     *	@return 				Mensagem com o status da requisição realizada pelo jogador.
+     *	
      * */
-    public int temPartida(int playerId) {
+    public String temPartida() {
         try {
-			return this.game.temPartida(playerId);
+			int retorno = this.game.temPartida(this.idJogador);
+			switch (retorno) {
+				case -2:
+					return "Tempo de espera esgotado.";
+				case -1:
+					return "Houve um erro ao verificar sua partida";
+				case 0:
+					return "Ainda não há partida.";
+				case 1:
+					return "Há partida e você começa jogando.";
+				case 2:
+					return "Há partida e você é o segundo a jogar.";
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return -1;
 		}
+        return "Houve um erro ao verificar sua partida";
     }
    
     /*
      *	Retorna o nome do oponente de um jogador.
      * 
      *	@param idJogador 		Identificação do usuário.
-     *	@return 				String vazio para erro ou string com o nome do oponente.
+     *	@return 				Mensagem com o status da requisição realizada pelo jogador.
      * 
      * */
-    public String obtemOponente(int playerId) {
+    public String obtemOponente() {
     	try {
-    		return this.game.obtemOponente(playerId);
+    		String retorno = this.game.obtemOponente(this.idJogador);
+    		if(retorno != "") {
+    			return "Seu oponente se chama " + retorno;
+    		}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "";
 		}
+    	return "Houve um erro ao obter seu oponente.";
     }
 
     /*
@@ -103,31 +185,50 @@ public class KingsValleyClient {
      *	@return 				String vazio em caso de erro ou string representando o tabuleiro de jogo
      * 
      */
-    public String obtemTabuleiro(int playerId) {
+    public String obtemTabuleiro() {
     	try {
-    		return this.game.obtemTabuleiro(playerId);
+    		String retorno = this.game.obtemTabuleiro(this.idJogador);
+    		if(retorno != "") {
+    			return retorno;
+    		}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "";
 		}
+    	return "Houve um erro ao busca o tabuleiro do seu jogo";
     }
     
     /*
      *	Verifica se é a vez do jogador. Note que o retorno detalha situação do estado da partida.
      * 
      *	@param idJogador 		Identificação do usuário
-     *	@return 				Retorna -2 (erro: ainda não há 2 jogadores registrados na partida), -1 (erro), 0 (não),
-     *							1 (sim), 2 (é o vencedor), 3 (é o perdedor), 4 (houve empate), 5 (vencedor por WO), 
-     *							6 (perdedor por WO).
-     *  
+     *	@return 				Mensagem com o status da requisição realizada pelo jogador.
+     * 
      * */
-    public int ehMinhaVez(int playerId) {
+    public String ehMinhaVez() {
         try {
-			return this.game.ehMinhaVez(playerId);
+			int retorno = this.game.ehMinhaVez(this.idJogador);
+			switch (retorno) {
+				case -2:
+					return "Ainda não há dois jogadores na partida.";
+				case 0:
+					return "Não é sua vez.";
+				case 1:
+					return "É a sua vez.";
+				case 2:
+					return "Você é o vencedor.";
+				case 3:
+					return "Você é o perdedor.";
+				case 4:
+					return "Houve empate.";
+				case 5:
+					return "Você venceu por WO.";
+				case 6:
+					return "Você perdeu por WO";
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return -1;
 		}
+        return "Houve um erro ao verifica a sua vez.";
     }
 
     /*
@@ -145,22 +246,43 @@ public class KingsValleyClient {
 	 *								5 - diagonal esquerda superior
 	 *								6 - para cima
 	 *								7 - diagonal direita superior 
-     * 	@return					Retorna: 2 (partida encerrada, o que ocorrerá caso o jogador demore muito para enviar a sua
-	 *							jogada e ocorra o time-out de 60 segundos para envio de jogadas), 1 (tudo certo), 0 (movimento
-	 *							inválido, por exemplo, em um sentido e deslocamento que resulta em uma posição ocupada ou
-	 *							fora do tabuleiro), -1 (jogador não encontrado), -2 (partida não iniciada: ainda não há dois
-	 *							jogadores registrados na partida), -3 (parâmetros de posição e orientação inválidos), -4 (não é a
-	 *							vez do jogador).
+     * @return 				Mensagem com o status da requisição realizada pelo jogador.
+     * 
      */
-    public int movePeca(int playerId, int lin, int col, int dir) {
+    public String movePeca(String lin, String col, String dir) {
     	try {
-    		return this.game.movePeca(playerId, lin, col, dir);
-    	} catch (Exception e) {
+    		int l = Integer.parseInt(lin);
+    		int c = Integer.parseInt(col);
+    		int d = Integer.parseInt(dir);
+    		
+    		int retorno = this.game.movePeca(this.idJogador, l, c, d);
+    		
+    		switch (retorno) {
+				case -4:					
+					return "Não é a sua vez.";
+				case -3:					
+					return "Parâmetros inválidos.";
+				case -2:					
+					return "Partida ainda não iniciada (apenas você está na partida).";
+				case -1:					
+					return "Jogador não encontrado.";
+				case 0:					
+					return "Movimento desejado é inválido.";
+				case 1:					
+					return "Movimento realizado com sucesso.";
+				case 2:					
+					return "Partida encerrada.";
+			}
+    		
+    	} catch (RemoteException e) {
 			e.printStackTrace();
-    		return 0;
+		} catch (NumberFormatException e) {
+			return "Os parâmetros passados são inválidos.";
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return "Houve um erro na execução do movimento da peça.";
     }
-	
 	
 }
 
