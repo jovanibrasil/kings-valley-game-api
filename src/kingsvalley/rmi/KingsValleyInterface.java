@@ -1,4 +1,4 @@
-package jogo.interfaces;
+package kingsvalley.rmi;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

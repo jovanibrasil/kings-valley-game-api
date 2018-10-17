@@ -1,9 +1,9 @@
-package jogo.servidor;
+package kingsvalley.game;
 
-import enums.Direcao;
-import enums.EstadoJogador;
-import enums.EstadoPartida;
-import enums.TipoPecas;
+import kingsvalley.enums.Direcao;
+import kingsvalley.enums.EstadoJogador;
+import kingsvalley.enums.EstadoPartida;
+import kingsvalley.enums.TipoPecas;
 
 /**
  *
@@ -280,6 +280,8 @@ public class KingsValleyGame {
 	 * */
 	public int movePeca(int idJogador, int lin, int col, Direcao direcao) {
 		
+		System.out.println("Move peça ["+lin+", "+col+"] na direção "+direcao);
+		
 		int dir = direcao.ordinal();
 		int pos = (lin * 5) + col;
 		char peca = this.tabuleiro.getPeca(pos);
@@ -354,7 +356,7 @@ public class KingsValleyGame {
     	if(this.estadoPartida == EstadoPartida.PartidaAguardandoOponente) {
     		this.temporizador++; // tempo entre inicialização e entrada do segundo jogador
     		//System.out.println("temporizador de partida: "+ this.temporizador);
-    		if(temporizador == 120) { // mudei 120 para 6 segundos (para testes)
+    		if(temporizador == 120) { 
     			System.out.println("t="+time+" Estado partida Aguardando -> AguardandoDestruicao");
     			this.estadoPartida = EstadoPartida.AguardandoDestruicao;
     			this.temporizador = 0;
@@ -362,7 +364,7 @@ public class KingsValleyGame {
     	}else if(this.estadoPartida == EstadoPartida.PartidaEmJogo){
     		this.temporizador++; // tempo desde a última jogada
     		//System.out.println("temporizador de partida: "+ this.temporizador);
-    		if(this.temporizador == 60) { // mudei de 60 para 3 (para testes)
+    		if(this.temporizador == 60) { 
     			System.out.println("t="+time+" Estado partida EmJogo -> Encerrada");
     			this.estadoPartida = EstadoPartida.PartidaEncerravel;
     			this.temporizador = 0;
@@ -371,7 +373,7 @@ public class KingsValleyGame {
     		}
     	}else if(this.estadoPartida == EstadoPartida.PartidaEncerrada){
     		this.temporizador++; // tempo desde o encerramento
-    		if(this.temporizador == 60) { // mudei de 60 para 3 segundos (para testes)
+    		if(this.temporizador == 60) { 
     			System.out.println("t="+time+" Estado partida Encerrada -> AguardandoDestruicao	");
     			this.estadoPartida = EstadoPartida.AguardandoDestruicao;
     			this.temporizador = 0;

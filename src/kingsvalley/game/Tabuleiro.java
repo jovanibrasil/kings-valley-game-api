@@ -1,4 +1,4 @@
-package jogo.servidor;
+package kingsvalley.game;
 
 /**
 *

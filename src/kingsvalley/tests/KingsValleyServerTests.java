@@ -1,4 +1,4 @@
-package tests;
+package kingsvalley.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import jogo.servidor.KingsValleyImpl;
+import kingsvalley.rmi.KingsValleyRMIServerImpl;
 
 /**
 *
@@ -20,7 +20,7 @@ import jogo.servidor.KingsValleyImpl;
 
 public class KingsValleyServerTests {
 
-	private static KingsValleyImpl server;
+	private static KingsValleyRMIServerImpl server;
 	
 	/*
 	 * Registra 1 player. O id do player deve ser 0.
@@ -30,7 +30,7 @@ public class KingsValleyServerTests {
 		System.out.println("\n\ntestRegistraJogador()");
 		try {
 			Thread.sleep(1000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int id = server.registraJogador("Jovani1");
 			Assert.assertEquals(0, id);
@@ -48,7 +48,7 @@ public class KingsValleyServerTests {
 		System.out.println("\n\ntestRegistraJogadorOponente()");
 		try {
 			Thread.sleep(1000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int id1 = server.registraJogador("Jovani1");
 			int id2 = server.registraJogador("Jovani2");
@@ -68,7 +68,7 @@ public class KingsValleyServerTests {
 		try {
 			System.out.println("\n\ntestRegistraOponenteInvalido()");
 			Thread.sleep(1000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int idJogador = server.registraJogador("Jovani1");
 			server.registraJogador("Jovani2");
@@ -89,7 +89,7 @@ public class KingsValleyServerTests {
 		try {
 			System.out.println("\n\ntestObtemOponenteComIdJogadorInvalido");
 			Thread.sleep(1000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			server.registraJogador("Jovani1");
 			server.registraJogador("Jovani2");
@@ -110,7 +110,7 @@ public class KingsValleyServerTests {
 		try {
 			System.out.println("\n\ntestRegistraQuatroJogadores()");
 			Thread.sleep(1000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int id1 = server.registraJogador("Jovani1");
 			int id2 = server.registraJogador("Jovani2");
@@ -144,7 +144,7 @@ public class KingsValleyServerTests {
 		try {
 			System.out.println("\n\ntestAbandonaPartidaNaoIniciada()");
 			Thread.sleep(1000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int id1 = server.registraJogador("Jovani1");
 			int ret = server.encerraPartida(id1);
@@ -164,7 +164,7 @@ public class KingsValleyServerTests {
 		try {
 			System.out.println("\n\ntestTimeoutIniciacaoPartida()");
 			Thread.sleep(5000);
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			//Thread.sleep(1000);
 			int idJovani = server.registraJogador("jovani");
 			//Thread.sleep(1000);
@@ -190,7 +190,7 @@ public class KingsValleyServerTests {
 		try {
 			Thread.sleep(1000);
 			System.out.println("\n\n-->testTimeoutJogada()");
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int idJovani1 = server.registraJogador("jovani1");
 			server.registraJogador("jovani2");		
@@ -214,7 +214,7 @@ public class KingsValleyServerTests {
 		try {
 			Thread.sleep(1000);
 			System.out.println("\n\n-->testTimeoutJogada()");
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			server.registraJogador("jovani1");
 			server.registraJogador("jovani2");		
@@ -241,7 +241,7 @@ public class KingsValleyServerTests {
 	void testServidorVazio() {
 		try {
 			System.out.println("\n\ntestServidorVazio()");
-			KingsValleyImpl server2 = new KingsValleyImpl(10);
+			KingsValleyRMIServerImpl server2 = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -258,7 +258,7 @@ public class KingsValleyServerTests {
 	void testDuasPartidasSimultaneas() {
 		try {
 			System.out.println("\n\n-->testDuasPartidasSimultaneas()");
-			server = new KingsValleyImpl(10);
+			server = new KingsValleyRMIServerImpl(10);
 			Thread.sleep(1000);
 			int idJovani1 = server.registraJogador("jovani1");
 			int idJovani2 = server.registraJogador("jovani2");		

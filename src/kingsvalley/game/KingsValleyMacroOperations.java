@@ -1,13 +1,10 @@
-package jogo.servidor;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+package kingsvalley.game;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import enums.Direcao;
-import jogo.interfaces.KingsValleyInterface;
+import kingsvalley.enums.Direcao;
 
 /**
  *
@@ -16,9 +13,7 @@ import jogo.interfaces.KingsValleyInterface;
  *  
  */
 
-public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyInterface {
-
-	private static final long serialVersionUID = 4193276219231176546L;
+public class KingsValleyMacroOperations {
 
 	private KingsValleyGame[] partidas; // Vetor para armazenamento das partidas
 	
@@ -36,7 +31,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 	private Semaphore idsDisponiveisMutex, nomeJogadorMutex;
 	private Semaphore[] indiceUsuarioPartidaMutexes;
 	
-    public KingsValleyImpl(int totalPartidas) throws RemoteException {
+    public KingsValleyMacroOperations(int totalPartidas) {
     	this.totalPartidas = totalPartidas;
     
         this.idsDisponiveis = new LinkedList<>(); 
@@ -120,8 +115,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 		}
     }
 		
-    @Override 
-    public int registraJogador(String nome) throws RemoteException {
+    public int registraJogador(String nome) {
     	if(this.mapaNomeIdAtivos.containsKey(nome)){
     		//System.out.println("Tentativa de cadastro falhou");
 			return -1; // Nome já existe.
@@ -168,8 +162,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     	return -3;
     }
 
-    @Override
-    public int encerraPartida(int idJogador) throws RemoteException {
+    public int encerraPartida(int idJogador) {
     	
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // verifica se playerId é inválido
     		return -1;
@@ -203,8 +196,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     	return -1;
     }
 
-    @Override 
-    public int temPartida(int idJogador) throws RemoteException {
+    public int temPartida(int idJogador) {
         try {
         	if(idJogador >= totalPartidas*2 || idJogador < 0) // verifica se playerId é inválido
             	return -1;
@@ -243,9 +235,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
         return -1;
     }
    
-    
-    @Override 
-    public String obtemOponente(int idJogador) throws RemoteException {
+    public String obtemOponente(int idJogador) {
     	
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // verifica se playerId é inválido
         	return "";
@@ -272,10 +262,8 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     	return "";
     	
     }
-
     
-    @Override 
-    public int ehMinhaVez(int idJogador) throws RemoteException {
+    public int ehMinhaVez(int idJogador) {
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // verifica se playerId é inválido
         	return -1;
     		System.out.println("Jogador "+idJogador+ " está consultando se é sua vez");
@@ -297,9 +285,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
 		return -1;
     }
 
-    
-    @Override 
-    public String obtemTabuleiro(int idJogador) throws RemoteException {
+    public String obtemTabuleiro(int idJogador) {
     	
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // verifica se playerId é inválido
         	return "";
@@ -321,8 +307,7 @@ public class KingsValleyImpl extends UnicastRemoteObject implements KingsValleyI
     	return "";
     }
 
-    @Override 
-    public int movePeca(int idJogador, int lin, int col, int dir) throws RemoteException {
+    public int movePeca(int idJogador, int lin, int col, int dir) {
     	
     	if(idJogador >= totalPartidas*2 || idJogador < 0) // testa se playerId é inválido
     		return 0; 

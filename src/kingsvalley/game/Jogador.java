@@ -1,7 +1,7 @@
-package jogo.servidor;
+package kingsvalley.game;
 
-import enums.EstadoJogador;
-import enums.TipoPecas;
+import kingsvalley.enums.EstadoJogador;
+import kingsvalley.enums.TipoPecas;
 
 /*
 *

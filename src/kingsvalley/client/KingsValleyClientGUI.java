@@ -1,4 +1,4 @@
-package jogo.cliente;
+package kingsvalley.client;
 
 import java.awt.Color;
 import java.awt.Container;

@@ -1,4 +1,4 @@
-package tests;
+package kingsvalley.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import enums.Direcao;
-import jogo.servidor.KingsValleyGame;
+import kingsvalley.enums.Direcao;
+import kingsvalley.game.KingsValleyGame;
 
 /**
 *

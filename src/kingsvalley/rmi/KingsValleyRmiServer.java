@@ -1,4 +1,4 @@
-package jogo.servidor;
+package kingsvalley.rmi;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
@@ -9,7 +9,7 @@ import java.rmi.RemoteException;
 *  
 */
 
-class KingsValleyServer {
+class KingsValleyRmiServer {
 	// Programa servidor para o exercício de fatorial
 	public static void main (String[] argv) {
 		try {
@@ -27,11 +27,10 @@ class KingsValleyServer {
 			// rebind = caso já haja associação, o novo objeto substitui o já associado
 			//Naming.rebind ("Fatorial", new Fatorial());
 			System.out.println("KingsValley server is ready.");
-			Naming.rebind("kv", new KingsValleyImpl(100));
+			Naming.rebind("kv", new KingsValleyRMIServerImpl(100));
 		} catch (Exception e) {
 			System.out.println ("KingsValleyServer failed:");
 			e.printStackTrace();
 		}
 	}
 }
-

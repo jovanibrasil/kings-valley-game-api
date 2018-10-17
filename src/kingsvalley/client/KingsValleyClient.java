@@ -1,9 +1,9 @@
-package jogo.cliente;
+package kingsvalley.client;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
-import jogo.interfaces.KingsValleyInterface;
+import kingsvalley.rmi.KingsValleyInterface;
 
 /*
 *
@@ -88,7 +88,7 @@ public class KingsValleyClient {
 				break;
 			case 6:
 				mensagemResultado = cmd.length == 4 
-					? this.movePeca(cmd[0], cmd[1], cmd[2]) : paramErrorMsg;
+					? this.movePeca(cmd[1], cmd[2], cmd[3]) : paramErrorMsg;
 				break;
 			default:
 				System.out.println("Comando desconhecido");
