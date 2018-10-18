@@ -1,258 +1,134 @@
 package kingsvalley.client;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import java.awt.Toolkit;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
-import javax.swing.Box;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-/**
- *
+/*
+ * TODO diminuir as dimensões do tesouro
+ * TODO inicialização do tabuleiro
+ * TODO cores diferentes no tabuleiro
+ * TODO set do tabuleiro de acordo com o retorno do servidor em formato string
+ * TODO set do tabuleiro unitariamente
  * 
- * EM CONSTRUÇÃO!!!!!!!!!!!!
  * 
- * Interface gráfica para o cliente do KingsValley. 
+ * Créditos da imagens utilizadas no tabuleiro:
+ * 	Tesouro do centro: https://opengameart.org/content/golden-treasures
+ *  Demais peças: https://opengameart.org/content/chess-pieces
  * 
- * Créditos:
- * A base da interface gráfica foi o jogo da velha implementado em https://www.paulocollares.com.br/2012/08/jogo-da-velha-em-java/.
- *
- *
- * @author Jovani Brasil
- * @email jovanibrasil@gmail.com
- *
  */
-public class KingsValleyClientGUI extends JFrame {
 
-    /**
+public class KingsValleyClientGUI extends JFrame {
+	
+	Color lightgreen = new Color(150, 223, 193);
+	
+	public class BoardSpace extends JButton implements ActionListener {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		ImageIcon image;
+		private BufferedImage originalImage, modifiedImage;
+		
+		public BoardSpace(){
+			this.setFocusPainted(false);
+			this.setContentAreaFilled(false);
+			this.setOpaque(true);
+			//this.setForeground(Color.WHITE);
+			//image = new ImageIcon(this.getClass().getResource("white_pawn.png"));
+			
+			getModifiedImage();
+	        image = new ImageIcon(modifiedImage);
+			
+			setIcon(image);
+			
+			this.setBackground(lightgreen);
+			
+			this.addActionListener(this);
+		}
+
+		private void getModifiedImage()
+	    {
+	        try
+	        {
+	            originalImage = ImageIO.read(
+	                new File("/home/jovani/Projects/kings-valley-game/src/kingsvalley/client/black_king.png"));
+	            modifiedImage = new BufferedImage(
+	                originalImage.getWidth(),
+	                originalImage.getHeight(),
+	                BufferedImage.TYPE_INT_ARGB);       
+	        }
+	        catch(IOException ioe)
+	        {
+	            System.out.println("Unable to read the Content of the Image.");
+	            ioe.printStackTrace();
+	        }
+
+	        Graphics2D g2 = modifiedImage.createGraphics();
+	        AlphaComposite newComposite = 
+	            AlphaComposite.getInstance(
+	                AlphaComposite.SRC_OVER, 0.5f);
+	        g2.setComposite(newComposite);      
+	        g2.drawImage(originalImage, 0, 0, null);
+	        g2.dispose();
+	    }
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			setIcon(image);
+		}
+		
+	}
+	
+	
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JButton[] button;
-    private JButton btnEncerrarPartida;
-    private JLabel lblTxtVirorias;
-    private JLabel lblTxtDerrotas;
-    private JLabel lblValueVitorias;
-    private JLabel lblValueDerrotas;
-    private int quemJoga = 0;
-    private int pnt1 = 0;
-    private int pnt2 = 0;
-    private JLabel lblStatusPartida;
-
-    public void acao(int bnt) {
-        String XO;
-        if (quemJoga == 0) {
-            XO = "X";
-            quemJoga = 1;
-            lblStatusPartida.setText("Vez do Jogador 2");
-        } else {
-            XO = "O";
-            quemJoga = 0;
-            lblStatusPartida.setText("Vez do Jogador 1");
-
-        }
-        button[bnt].setText(XO);
-        button[bnt].setEnabled(false);
-        verifica(XO);
-    }
-    
-    public boolean verifica(String XO) {
-
-        //verificações horizontais
-        if ((button[0].getText().equals(XO)) && (button[1].getText().equals(XO)) && (button[2].getText().equals(XO))) {
-            button[0].setBackground(Color.green);
-            button[1].setBackground(Color.green);
-            button[2].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-        if ((button[3].getText().equals(XO)) && (button[4].getText().equals(XO)) && (button[5].getText().equals(XO))) {
-            button[3].setBackground(Color.green);
-            button[4].setBackground(Color.green);
-            button[5].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-        if ((button[6].getText().equals(XO)) && (button[7].getText().equals(XO)) && (button[8].getText().equals(XO))) {
-            button[6].setBackground(Color.green);
-            button[7].setBackground(Color.green);
-            button[8].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-
-        //verificaçoes verticais
-        if ((button[0].getText().equals(XO)) && (button[3].getText().equals(XO)) && (button[6].getText().equals(XO))) {
-            button[0].setBackground(Color.green);
-            button[3].setBackground(Color.green);
-            button[6].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-        if ((button[1].getText().equals(XO)) && (button[4].getText().equals(XO)) && (button[7].getText().equals(XO))) {
-            button[1].setBackground(Color.green);
-            button[4].setBackground(Color.green);
-            button[7].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-        if ((button[2].getText().equals(XO)) && (button[5].getText().equals(XO)) && (button[8].getText().equals(XO))) {
-            button[2].setBackground(Color.green);
-            button[5].setBackground(Color.green);
-            button[8].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-
-        //verificações diagonais
-        if ((button[0].getText().equals(XO)) && (button[4].getText().equals(XO)) && (button[8].getText().equals(XO))) {
-            button[0].setBackground(Color.green);
-            button[4].setBackground(Color.green);
-            button[8].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-        if ((button[2].getText().equals(XO)) && (button[4].getText().equals(XO)) && (button[6].getText().equals(XO))) {
-            button[2].setBackground(Color.green);
-            button[4].setBackground(Color.green);
-            button[6].setBackground(Color.green);
-            ganhou(XO);
-            return true;
-        }
-
-        //verifica se deu velha
-        if ((button[0].getText() != "   ") && (button[1].getText() != "   ") && (button[2].getText() != "   ") && (button[3].getText() != "   ") && (button[4].getText() != "   ") && (button[5].getText() != "   ") && (button[6].getText() != "   ") && (button[7].getText() != "   ") && (button[8].getText() != "   ")) {
-            for (int i = 0; i < 9; i++) {
-                button[i].setBackground(Color.red);
-            }
-            velha();
-            return true;
-        }
-        return true;
-    }
-
-    public void velha() {
-        for (int i = 0; i < 9; i++) {
-            button[i].setEnabled(false);
-        }
-        btnEncerrarPartida.setVisible(true);
-        lblStatusPartida.setText("Deu Velha");
-    }
-
-    public void ganhou(String XO) {
-        for (int i = 0; i < 9; i++) {
-            button[i].setEnabled(false);
-        }
-        String texto;
-        if (XO == "X") {
-            texto = "Jogador 1 Venceu";
-            pnt1++;
-        } else {
-            texto = "Jogador 2 Venceu";
-            pnt2++;
-        }
-        lblValueVitorias.setText(Integer.toString(pnt1));
-        lblValueDerrotas.setText(Integer.toString(pnt2));
-        btnEncerrarPartida.setVisible(true);
-        lblStatusPartida.setText(texto);
-    }
-
-    public void newGame() {
-        btnEncerrarPartida.setVisible(false);
-        lblStatusPartida.setText("Vez do Jogador 1");
-        quemJoga = 0;
-        for (int i = 0; i < 9; i++) {
-            button[i].setText("   ");
-            button[i].setBackground(btnEncerrarPartida.getBackground());
-            button[i].setEnabled(true);
-        }
-    }
-
-    public KingsValleyClientGUI() {
-        super();
-        setResizable(false);
-        setTitle("KingsValleyClientGUI");
-        Toolkit tk = Toolkit.getDefaultToolkit();
-        Dimension d = tk.getScreenSize();
-        Box editBox = Box.createVerticalBox();
-        Box[] box = new Box[9];
-        button = new JButton[25];
-        
-        lblStatusPartida = new JLabel("[Msg] Status da partida ...");
-        btnEncerrarPartida = new JButton("EncerrarPartida");
-        btnEncerrarPartida.setVisible(true);
-        lblTxtVirorias = new JLabel("Vitorias: ");
-        lblTxtDerrotas = new JLabel("Derrotas: ");
-        lblValueVitorias = new JLabel("0");
-        lblValueDerrotas = new JLabel("0");
-        
-        for (int i = 0; i < 9; i++) {
-            box[i] = Box.createHorizontalBox();
-        }
-        for (int i = 0; i < 25; i++) {
-            button[i] = new JButton("   ");
-            //button[i].setPreferredSize(new Dimension(100,300) );
-            button[i].addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    acao(0);
-                }
-            });
-        }
-        
-        box[0].add(lblTxtVirorias);
-        box[0].add(lblValueVitorias);
-        box[0].add(Box.createRigidArea(new Dimension(20, 0)));
-        box[0].add(lblTxtDerrotas);
-        box[0].add(lblValueDerrotas);
-        box[2].add(lblStatusPartida);
-        
-        for(int i=3, j=0; i<8; i++, j+=5) {
-        	box[i].add(button[j]);
-            box[i].add(button[j+1]);
-            box[i].add(button[j+2]);
-            box[i].add(button[j+3]);
-            box[i].add(button[j+4]);
-            //box[i].setSize(40, 80);
-        }
-        
-        box[8].add(btnEncerrarPartida);
-
-        editBox.add(box[0]);
-        editBox.add(box[1]);
-        editBox.add(Box.createVerticalStrut(30));
-        editBox.add(box[2]);
-        editBox.add(box[3]);
-        editBox.add(box[4]);
-        editBox.add(box[5]);
-        editBox.add(box[6]);
-        editBox.add(box[7]);
-        editBox.add(box[8]);
-
-        Container container = getContentPane();
-        container.setLayout(new GridBagLayout());
-        
-//        GridBagConstraints c = new GridBagConstraints();
-//        c.fill = GridBagConstraints.HORIZONTAL;
-//        c.gridx = 0;
-//        c.gridy = 0;
-//        c.anchor = GridBagConstraints.PAGE_END; //bottom of space
-//        
-        container.add(editBox);
-        setSize(300, 300);
-        setLocation((d.width - 460) / 2, (d.height - 500) / 2);
-        setVisible(true);
-
-        
-    }
-    
-    public static void main(String[] args) {
-        KingsValleyClientGUI vf = new KingsValleyClientGUI();
-        vf.setVisible(true);
-    }
+	JPanel panel = new JPanel();
+	BoardSpace[]board;
+	
+	//	JLabel lblTurn = new JLabel("Player turn label");
+	//	JButton btnPlay = new JButton("Play");
+	//	Color blue = new Color(0, 0, 255);	
+	
+	public KingsValleyClientGUI() {
+		super("KingsValleyGame");
+		
+		this.board = new BoardSpace[25];
+		setSize(400, 400);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setResizable(false);
+		//setBackground(blue);
+		panel.setLayout(new GridLayout(5, 5));
+		
+		for (int i = 0; i < board.length; i++) {
+			board[i] = new BoardSpace();
+			panel.add(board[i]);
+		}
+		add(panel);
+		setVisible(true);
+		
+	}
+	
+	public static void main(String[] args) {
+		KingsValleyClientGUI gui = new KingsValleyClientGUI();
+	}
+	
+	
 }
