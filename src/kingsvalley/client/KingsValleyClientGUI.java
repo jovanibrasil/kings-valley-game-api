@@ -10,6 +10,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -35,6 +38,8 @@ public class KingsValleyClientGUI extends JFrame {
 	
 	Color lightgreen = new Color(150, 223, 193);
 	
+	List<Integer> greanPlaces = Arrays.asList(2, 6, 8, 10, 14, 16, 18, 22);
+	
 	public class BoardSpace extends JButton implements ActionListener {
 		
 		/**
@@ -45,19 +50,20 @@ public class KingsValleyClientGUI extends JFrame {
 		ImageIcon image;
 		private BufferedImage originalImage, modifiedImage;
 		
-		public BoardSpace(){
+		public BoardSpace(Color color){
+			
 			this.setFocusPainted(false);
 			this.setContentAreaFilled(false);
 			this.setOpaque(true);
-			//this.setForeground(Color.WHITE);
-			//image = new ImageIcon(this.getClass().getResource("white_pawn.png"));
+			//this.setForeground(new Color(0,0,0,0));
+			image = new ImageIcon(this.getClass().getResource("black_king.png"));
 			
-			getModifiedImage();
-	        image = new ImageIcon(modifiedImage);
 			
-			setIcon(image);
-			
-			this.setBackground(lightgreen);
+//			getModifiedImage();
+//	        image = new ImageIcon(modifiedImage);
+//			setIcon(image);
+//			
+			this.setBackground(color);
 			
 			this.addActionListener(this);
 		}
@@ -116,9 +122,12 @@ public class KingsValleyClientGUI extends JFrame {
 		setResizable(false);
 		//setBackground(blue);
 		panel.setLayout(new GridLayout(5, 5));
-		
+		// Board initialization
 		for (int i = 0; i < board.length; i++) {
-			board[i] = new BoardSpace();
+			if(greanPlaces.contains(i))
+				board[i] = new BoardSpace(lightgreen);
+			else
+				board[i] = new BoardSpace(Color.WHITE);
 			panel.add(board[i]);
 		}
 		add(panel);
