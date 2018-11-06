@@ -264,8 +264,9 @@ public class KingsValleyGame {
 	 * 			
 	 * 		-1 para jogador não encontrado
 	 * 		-2 partida não iniciada: ainda não há dois jogadores registrados na partida
-	 * 		-3 quando parâmetros de posição e orientação foram inválidos
-	 * 		-4 não é a vez do jogador.
+	 * 		-3 não é a vez do jogador
+	 * 		-4 quando parâmetros de posição e orientação foram inválidos
+	 * 		-5 quando não é a peça do jogador
 	 * 
 	 *		Valores para dir (raciocinio em sentido horario)
 	 *		0 - direita
@@ -288,26 +289,27 @@ public class KingsValleyGame {
 		
 		// Regra: Jogador deve estar no jogo
 		if(this.jogador1.getIdJogador() != idJogador && this.jogador2.getIdJogador() != idJogador) {
-			return -1; // Violação, erro código -1
+			return -1; // Violação, jogador não enocntrado, erro código -1
 		// Regra: sala ainda não possui dois jogadores
 		}else if(this.estadoPartida == EstadoPartida.PartidaAguardandoOponente) {
 			return -2; // Violação, erro código -2
-		// Regra: um jogador só pode mover as suas peças.
-		}else if(!ehMinhaPeca(idJogador, peca)) {
-			return 0; // Violação, erro código 0
-		// Regra: Validade dos parâmetros de posição e orientação. 
-		}else if((dir < 0 || dir > 7) || (lin < 0 || lin > 4) || (col < 0 || col > 4)) {
-			return -3; // Violação, erro código -3;
 		// Regra: É a vez do jogador em questão? 
 		}else if(jogadorDaVez.getIdJogador() != idJogador) {
-			return -4;
+			return -3;
+		// Regra: Validade dos parâmetros de posição e orientação. 
+		}else if((dir < 0 || dir > 7) || (lin < 0 || lin > 4) || (col < 0 || col > 4)) {
+			return -4; // Violação, erro código -3;
+		// Regra: um jogador só pode mover as suas peças.
+		}else if(!ehMinhaPeca(idJogador, peca)) {
+			return -5; // Violação, erro código 0
 		}
 
+		// Regra: Primeira jogada é o movimento de um soldado.	
 		if(this.firstPlay) {
-			if(peca == 's' || peca == 'S')
+			if(peca == 'e' || peca == 'c')
 				this.firstPlay = false;
 			else
-				return 0;
+				return 0; // Violação, movimento inválido
 		}
 			
 		if(this.tabuleiro.movePeca(pos, dir)) {	// se realiza movimento foi válido

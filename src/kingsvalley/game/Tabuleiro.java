@@ -1,5 +1,7 @@
 package kingsvalley.game;
 
+import java.util.Arrays;
+
 /**
 *
 * Implementação da classe tabuleiro. O tabuleiro foi representado como uma lista, tal que
@@ -39,11 +41,11 @@ public class Tabuleiro {
 	 * 		"K" rei escuro (King) 
 	 */
 	public void inicializaTabuleiro() {
-		this.tabuleiro = new char[] { 's', '-', '-', '-', 'S', // 0 - 4 
-				's', '-', '-', '-', 'S', // 5 - 9
-				'r', '-', '-', '-', 'R', // 10 - 14
-				's', '-', '-', '-', 'S', // 15 - 19
-				's', '-', '-', '-', 'S'  }; // 20 - 24
+		this.tabuleiro = new char[] { 'c', '.', '.', '.', 'e', // 0 - 4 
+				'c', '.', '.', '.', 'e', // 5 - 9
+				'C', '.', '.', '.', 'E', // 10 - 14
+				'c', '.', '.', '.', 'e', // 15 - 19
+				'c', '.', '.', '.', 'e'  }; // 20 - 24
 	}
 
 	/*
@@ -65,7 +67,7 @@ public class Tabuleiro {
 	 * 
 	 */
 	private boolean isTabuleiroVazio(int pos) {
-		if(this.tabuleiro[pos] == '-')
+		if(this.tabuleiro[pos] == '.')
 			return true;
 		else
 			return false;
@@ -101,7 +103,7 @@ public class Tabuleiro {
 			case 4: // esquerda
 				return posAtual-1 >= min && isTabuleiroVazio(posAtual-1) ? posAtual-1 : -1;
 			case 5: // diagonal esquerda superior
-				return posAtual > min && posAtual-6 > 0 && isTabuleiroVazio(posAtual-6) ? posAtual-6 : -1;
+				return posAtual > min && posAtual-6 >= 0 && isTabuleiroVazio(posAtual-6) ? posAtual-6 : -1;
 			case 6: // para cima
 				return posAtual-5 >= 0 && isTabuleiroVazio(posAtual-5) ? posAtual-5 : -1;
 			case 7: // diagonal direita superior 
@@ -137,15 +139,15 @@ public class Tabuleiro {
 				this.rei2Pos = pos == this.rei2Pos ? newPos : pos;
 				pos = newPos;
 			}else { //não houve um movimento válido
-				if(pos == 12 && (this.tabuleiro[originalPos] == 's'
-						|| this.tabuleiro[originalPos] == 'S')) {
+				if(pos == 12 && (this.tabuleiro[originalPos] == 'c'
+						|| this.tabuleiro[originalPos] == 'e')) {
 					return false; // soldado não pode parar no centro
 				}
 				//System.out.println("Movimento inválido encontrado");
 				if(pos != originalPos) { // houve algum movimento anterior
 					// realiza a atualização do tabuleiro
 					this.tabuleiro[pos] = this.tabuleiro[originalPos]; 
-					this.tabuleiro[originalPos] = '-';
+					this.tabuleiro[originalPos] = '.';
 				}else {
 					return false; // caso contrário, ficou parado
 				}
@@ -167,6 +169,10 @@ public class Tabuleiro {
 	 * Sobrescrita do método toString.
 	 */
 	@Override public String toString() {
+		return  String.valueOf(this.tabuleiro);
+	}
+	
+	public String toStringFormatado() {
 		String out = "";
 		for (int i = 0, k = 0; i < 5; i++) {
 			for (int j = 0; j < 5; j++, k++)

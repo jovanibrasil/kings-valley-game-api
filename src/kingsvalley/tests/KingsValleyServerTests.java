@@ -158,6 +158,10 @@ public class KingsValleyServerTests {
 	 * Testa situação em que um jogador se cadastra em uma partida e a 
 	 * mesma sofre destruição por timeout, uma vez que nenhum oponente
 	 * se registra.
+	 * 
+	 * Atenção: Necessário reduzir os tempos dos temporizadores na lógica do jogo 
+	 * para poder testar.
+	 * 
 	 */
 	@Test
 	void testTimeoutIniciacaoPartida() {
@@ -184,6 +188,10 @@ public class KingsValleyServerTests {
 	/*
 	 * Testa situação de timeout de jogada. O jogador que restou na partida
 	 * é declaro vencedor por wo (walkover que significa "vitória fácil").
+	 * 
+	 * Atenção: Necessário reduzir os tempos dos temporizadores na lógica do jogo 
+	 * para poder testar.
+	 * 
 	 */
 	@Test
 	void testTimeoutJogada() {

@@ -35,11 +35,7 @@ class KingsValleyGameTests {
 		
 	@Test
 	void testNewGame() {
-		String result = "s - - - S \n" + 
-				"s - - - S \n" + 
-				"r - - - R \n" + 
-				"s - - - S \n" + 
-				"s - - - S \n\n";
+		String result = "c...ec...eC...Ec...ec...e";
 		Assert.assertEquals(result, this.game.obtemTabuleiro());
 	}
 	
@@ -133,8 +129,8 @@ class KingsValleyGameTests {
 	void isNotMyTurn1() {
 		this.game.setJogador1(2, "Jovani2");
 		this.game.setJogador2(3, "Jovani3");
-		// retorna -4, pq não é a vez do player id=3
-		assertEquals(-4, this.game.movePeca(3, 0, 4, Direcao.Direita)); 
+		// não é a vez do player id=3
+		assertEquals(-3, this.game.movePeca(3, 0, 4, Direcao.Direita)); 
 	}
 	
 	@Test
@@ -144,7 +140,7 @@ class KingsValleyGameTests {
 		this.game.movePeca(2, 0, 0, Direcao.Direita);
 		//System.out.println(this.game.getBoard());
 		
-		assertEquals(-4, this.game.movePeca(2, 0, 3, Direcao.Esquerda)); // retorna -4, não  pode jogar duas seguidas
+		assertEquals(-3, this.game.movePeca(2, 0, 3, Direcao.Esquerda)); // retorna -4, não  pode jogar duas seguidas
 	}
 	
 	@Test
@@ -155,7 +151,7 @@ class KingsValleyGameTests {
 		assertEquals(1, status);
 		status = this.game.movePeca(3, 4, 4, Direcao.Esquerda);
 		assertEquals(1, status);
-		assertEquals(-4, this.game.movePeca(3, 1, 4, Direcao.Esquerda)); // retorna -4, não  pode jogar duas seguidas
+		assertEquals(-3, this.game.movePeca(3, 1, 4, Direcao.Esquerda)); // retorna -4, não  pode jogar duas seguidas
 	}
 	
 	@Test
@@ -163,22 +159,23 @@ class KingsValleyGameTests {
 		this.game.setJogador1(2, "Jovani2");
 		this.game.setJogador2(3, "Jovani3");
 		int status = this.game.movePeca(2, 1, 4, Direcao.Esquerda);
-		assertEquals(0, status);
+		assertEquals(-5, status);
 	}
 	
 	@Test
-	void isNotMyPiece2() {
+	void isNotMyTurn4() {
 		this.game.setJogador1(2, "Jovani2");
 		this.game.setJogador2(3, "Jovani3");
 		int status = this.game.movePeca(3, 0, 0, Direcao.Direita);
-		assertEquals(0, status);
+		assertEquals(-3, status);
 	}
 	
 	@Test
 	void invalidEmptyPieceMove() {
 		this.game.setJogador1(1, "Jovani1");
 		this.game.setJogador2(2, "Jovani2");
-		assertEquals(0, this.game.movePeca(1, 0, 1, Direcao.Direita)); // mover um espaço vazio, retorna 0
+		// mover um espaço vazio, retorna -5 (não é uma peça do jogador)
+		assertEquals(-5, this.game.movePeca(1, 0, 1, Direcao.Direita));
 	}
 	
 	@Test
@@ -190,14 +187,15 @@ class KingsValleyGameTests {
 		assertEquals(1, this.game.movePeca(2, 1, 4, Direcao.Esquerda)); // p2 move s(1,5) para esquerda
 		// movimentos inválidos - movimenta para posição já ocupada
 		// p1 tenta mover para s(0,5) que está ocupado, então retorna 0
-		assertEquals(0, this.game.movePeca(1, 0, 4, Direcao.Direita)); // move para a direita
+		assertEquals(0, this.game.movePeca(1, 0, 3, Direcao.Direita)); // move para a direita
 		assertEquals(1, this.game.movePeca(1, 3, 0, Direcao.Direita)); // então faz um movimento válido
 		//System.out.println(game.getBoard());
 		assertEquals(0, this.game.movePeca(2, 1, 1, Direcao.Esquerda)); // move para esquerda
-		//System.out.println(game.getBoard());
+		System.out.println(game.obtemTabuleiro());
 		// movimentos inválidos - movimenta para fora do tabuleiro
-		assertEquals(0, this.game.movePeca(1, 3, 0, Direcao.Esquerda));  
+		assertEquals(0, this.game.movePeca(2, 0, 4, Direcao.Direita));  
 		assertEquals(0, this.game.movePeca(2, 3, 4, Direcao.Direita));
+		assertEquals(1, this.game.movePeca(2, 1, 1, Direcao.DiagonalEsquerdaSuperior));
 		//System.out.println("Test horizontal move");
 		//System.out.println(this.game.getBoard());
 	}
@@ -233,18 +231,9 @@ class KingsValleyGameTests {
 		//System.out.println(this.game.getBoard());
 		// falha, uma vez que o primeiro movimento colocou um soldado no caminho
 		assertEquals(0, this.game.movePeca(2, 2, 4, Direcao.DiagonalEsquerdaInferior)); 
+		System.out.println(this.game.obtemTabuleiro());
 		//System.out.println(this.game.getBoard());
-		assertEquals(0, this.game.movePeca(1, 0, 0, Direcao.DiagonalEsquerdaInferior));
-		//System.out.println(this.game.getBoard());
-		assertEquals(0, this.game.movePeca(2, 3, 3, Direcao.DiagonalDireitaInferior));
-		//System.out.println(this.game.getBoard());
-		assertEquals(0, this.game.movePeca(1, 0, 0, Direcao.DiagonalEsquerdaSuperior));
-		//System.out.println(this.game.getBoard());
-		assertEquals(0, this.game.movePeca(2, 3, 3, Direcao.DiagonalEsquerdaInferior));
-		//System.out.println(this.game.getBoard());
-		assertEquals(0, this.game.movePeca(1, 0, 0, Direcao.DiagonalDireitaSuperior));
-		//System.out.println(this.game.getBoard());
-		assertEquals(0, this.game.movePeca(2, 3, 3, Direcao.DiagonalDireitaSuperior)); 
+		assertEquals(0, this.game.movePeca(2, 2, 4, Direcao.DiagonalDireitaInferior));
 		//System.out.println(this.game.getBoard());
 	}
 	
@@ -324,7 +313,6 @@ class KingsValleyGameTests {
 		
 	}
 	
-	
 	/*
 	*		TODO Criar testes para:
 	*			 soldado no meio 	
@@ -334,8 +322,6 @@ class KingsValleyGameTests {
 	* 			 5 vencedor por WO
 	* 			 6 perdedor por WO
 	*/
-	
-	
 	
 }
 

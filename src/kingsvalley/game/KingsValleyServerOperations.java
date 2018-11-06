@@ -152,7 +152,7 @@ public class KingsValleyServerOperations {
 		synchronized (preregistro) {
 			preregistro.put(nomeJogador1, new PreRegistroTupla(idJogador1, idJogador2));
 			preregistro.put(nomeJogador2, new PreRegistroTupla(idJogador2, idJogador1));
-			temporizacao=false;
+			temporizacao = false;
 		}
 		// Remove ids da lista de idsDisponiveis
 		synchronized (idsDisponiveis) {
@@ -209,6 +209,10 @@ public class KingsValleyServerOperations {
 				}else {
 					// Se não existe, busca um id novo.
 					synchronized (idsDisponiveis) {
+						
+						if(idsDisponiveis.size() == 0) 
+							return -2; // máximo de jogadores atingido
+							
 						idJogador = idsDisponiveis.poll();
 						registraNome(idJogador, nome);
 					}
@@ -245,7 +249,7 @@ public class KingsValleyServerOperations {
 				}
 			}
 		}
-		return -3;
+		return -2; // Númeor máximo de jogadores foi atingido
 	}
 
 	public int encerraPartida(int idJogador) {
@@ -405,7 +409,7 @@ public class KingsValleyServerOperations {
 					KingsValleyGame partida = partidas[idPartida];
 					int ret = 0;
 					if (partida.ehPartidaEncerrada())
-						ret = -2; // teve sua partida encerrada
+						ret = 2; // teve sua partida encerrada
 					else
 						ret = partida.movePeca(idJogador, lin, col, Direcao.getDirecao(dir));
 					indiceUsuarioPartidaMutexes[idJogador].release();

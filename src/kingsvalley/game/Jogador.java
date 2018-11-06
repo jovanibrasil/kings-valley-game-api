@@ -86,11 +86,11 @@ public class Jogador {
 	 */
 	public void setTipoPecas(TipoPecas tipoPecas) {
 		if(tipoPecas == TipoPecas.Claras) {
-			this.reiChar = 'r';
-			this.soldadoChar = 's';
+			this.reiChar = 'C';
+			this.soldadoChar = 'c';
 		}else {
-			this.reiChar = 'R';
-			this.soldadoChar = 'S';
+			this.reiChar = 'E';
+			this.soldadoChar = 'e';
 		}
 	}
 	
