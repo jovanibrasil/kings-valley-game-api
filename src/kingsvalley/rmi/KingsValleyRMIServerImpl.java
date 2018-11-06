@@ -2,7 +2,7 @@ package kingsvalley.rmi;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import kingsvalley.game.KingsValleyMacroOperations;
+import kingsvalley.game.KingsValleyServerOperations;
 
 /**
  *
@@ -14,10 +14,10 @@ import kingsvalley.game.KingsValleyMacroOperations;
 public class KingsValleyRMIServerImpl extends UnicastRemoteObject implements KingsValleyInterface {
 
 	private static final long serialVersionUID = 4193276219231176546L;
-	private KingsValleyMacroOperations gameServer;
+	private KingsValleyServerOperations gameServer;
 		
     public KingsValleyRMIServerImpl(int totalPartidas) throws RemoteException {
-    	this.gameServer = new KingsValleyMacroOperations(totalPartidas);
+    	this.gameServer = new KingsValleyServerOperations(totalPartidas);
     }
     
     @Override 
