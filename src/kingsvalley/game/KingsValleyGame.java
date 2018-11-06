@@ -80,6 +80,8 @@ public class KingsValleyGame {
 	 *  
 	 */
 	private boolean hasValidMove(int posicao) {
+               System.out.println("Verificando se a posicao se " + 
+                       posicao + " possui movimento válido");
 		for (int i = 0; i < 8; i++) {
 			int result = this.tabuleiro.verificaProximaPos(posicao, i); 
 			if(result >= 0)
@@ -88,18 +90,6 @@ public class KingsValleyGame {
 		return false;
 	}
 	
-	/*
-	 * Busca a posição do rei de um determinado jogador no tabuleiro.
-	 * 
-	 * @param idJogador		identificaodr do jogador que se deseja verificar o rei
-	 * @return				a posição do rei no tabuleiro
-	 * 
-	 */
-	private int getReiPosicao(int idJogador) {
-		if(idJogador == this.jogador1.getIdJogador())
-			return this.tabuleiro.getRei1Pos();
-		return this.tabuleiro.getRei2Pos();
-	}
 	
 	/*
 	 * Testa se um jogadore é vitorioso. Um jogador chega a vitória se o seu rei
@@ -109,14 +99,18 @@ public class KingsValleyGame {
 	 * @return				true se for vitorioso, caso contrário false
 	 * 
 	 */
-	private boolean win(int idJogador) { 
-		// testa se o rei do jogador atingiu o centro
-		if(this.tabuleiro.getPeca(12) == getJogadorPorId(idJogador).getReiChar())
-			return true;
-		// rei do adversário foi encurralado, ou seja, não tem um movimento válido
-		int posicaoRei = getReiPosicao(idJogador);
-		return !hasValidMove(posicaoRei);
+	private boolean win(int idJogador) {
+            // testa se o rei do jogador atingiu o centro
+            return this.tabuleiro.getPeca(12) == getJogadorPorId(idJogador).getReiChar();
 	}
+        
+        private boolean loose(int idJogador) {
+            // rei foi encurralado, ou seja, não tem um movimento válido
+            int posicaoRei = tabuleiro.getPosicaoPeca(getJogadorPorId(idJogador).getReiChar());
+            // Se rei não possui um movimento válido disponível
+            return !hasValidMove(posicaoRei);
+	}
+                
 	
 	private boolean tie() { // empate
 		if(!hasValidMove(jogador1.getIdJogador()) &&
@@ -217,6 +211,9 @@ public class KingsValleyGame {
 	 * 
 	 */
 	public int ehMinhaVez(int idJogador) {
+		
+		System.out.println(tabuleiro.toStringFormatado());
+		
 		// Verifica se é um id válido
 		if(idJogador != this.jogador1.getIdJogador() && idJogador != this.jogador2.getIdJogador()) {
 			return -1;
@@ -226,12 +223,12 @@ public class KingsValleyGame {
 			return -2;
 		}
 		
-		if(win(idJogador)) // vitória
-			return 2;
-		if(win(getIdOponente(idJogador))) // derrota
-			return 3;
+		if(win(idJogador) || loose(getIdOponente(idJogador))) // vitória
+                    return 2;
+		if(loose(idJogador) || win(getIdOponente(idJogador))) // derrota
+                    return 3;
 		if(tie()) // empate
-			return 4;
+                    return 4;
 		
 		// vitória por WO - oponente desistiu (não está mais ativo)
 		if(this.getOponente(idJogador).getEstado() == EstadoJogador.Desistiu)
@@ -279,11 +276,9 @@ public class KingsValleyGame {
 	 *		7 - diagonal direita superior 
 	 *
 	 * */
-	public int movePeca(int idJogador, int lin, int col, Direcao direcao) {
+	public int movePeca(int idJogador, int lin, int col, int dir) {
 		
-		System.out.println("Move peça ["+lin+", "+col+"] na direção "+direcao);
-		
-		int dir = direcao.ordinal();
+		//int dir = direcao.ordinal();
 		int pos = (lin * 5) + col;
 		char peca = this.tabuleiro.getPeca(pos);
 		
@@ -304,6 +299,8 @@ public class KingsValleyGame {
 			return -5; // Violação, erro código 0
 		}
 
+		System.out.println("Move peça ["+lin+", "+col+"] na direção "+Direcao.getDirecao(dir));
+		
 		// Regra: Primeira jogada é o movimento de um soldado.	
 		if(this.firstPlay) {
 			if(peca == 'e' || peca == 'c')

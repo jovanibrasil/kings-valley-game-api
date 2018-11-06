@@ -263,11 +263,11 @@ public class KingsValleyServerOperations {
 			if (idPartida >= 0) {
 				synchronized (partidas[idPartida]) {
 					KingsValleyGame partida = partidas[idPartida];
-					if (partida.ehPartidaEncerrada()) {
-						indiceUsuarioPartidaMutexes[idJogador].release();
-						System.out.println("Ocorreu um erro, tentativa de fechamento duplicada!");
-						return -1; // retorna erro, pois estou tentando encerrar duas vezes a partida
-					}
+					//if (partida.ehPartidaEncerrada()) {
+					//	indiceUsuarioPartidaMutexes[idJogador].release();
+					//	System.out.println("Ocorreu um erro, tentativa de fechamento duplicada!");
+					//	return -1; // retorna erro, pois estou tentando encerrar duas vezes a partida
+					//}
 					partida.encerraPartida(idJogador);
 					limpaMapeamentoDeNomes(idPartida);
 					indiceUsuarioPartida[idJogador] = -1;
@@ -296,6 +296,7 @@ public class KingsValleyServerOperations {
 				synchronized (partidas[idPartida]) {
 					KingsValleyGame partida = partidas[idPartida];
 					if (partida.ehPartidaAguardandoJogador()) {
+						indiceUsuarioPartidaMutexes[idJogador].release();
 						return 0; // esperando por player
 					} else if (partida.ehPartidaEmJogo()) {
 						if (partida.ehMinhaVez(idJogador) == 1) { // eu que jogo?
@@ -360,6 +361,7 @@ public class KingsValleyServerOperations {
 			indiceUsuarioPartidaMutexes[idJogador].acquire();
 			int idPartida = indiceUsuarioPartida[idJogador];
 			if (idPartida >= 0) {
+				System.out.println("Vai bloquear "+idPartida);
 				synchronized (partidas[idPartida]) {
 					int ret = partidas[idPartida].ehMinhaVez(idJogador);
 					indiceUsuarioPartidaMutexes[idJogador].release();
@@ -411,7 +413,7 @@ public class KingsValleyServerOperations {
 					if (partida.ehPartidaEncerrada())
 						ret = 2; // teve sua partida encerrada
 					else
-						ret = partida.movePeca(idJogador, lin, col, Direcao.getDirecao(dir));
+						ret = partida.movePeca(idJogador, lin, col, dir);
 					indiceUsuarioPartidaMutexes[idJogador].release();
 					return ret;
 				}

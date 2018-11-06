@@ -26,6 +26,8 @@ public class KingsValleyServerOperationsTests {
 			
 			server.preRegistro("Jovani", 3, "Camila", 6);
 			Assert.assertEquals(3, server.registraJogador("Jovani"));
+			Assert.assertEquals(0, server.temPartida(3));
+			Assert.assertEquals(1, server.ehMinhaVez(3));
 			Assert.assertEquals(6, server.registraJogador("Camila"));
 			Assert.assertEquals("Jovani", server.obtemOponente(6));
 			Assert.assertEquals("Camila", server.obtemOponente(3));

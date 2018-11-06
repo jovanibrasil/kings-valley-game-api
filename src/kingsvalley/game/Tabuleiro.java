@@ -21,7 +21,6 @@ package kingsvalley.game;
 public class Tabuleiro {
 
 	private char[] tabuleiro;
-	int rei1Pos, rei2Pos;
 	
 	public Tabuleiro() {
 		this.tabuleiro = new char[25]; // tabuleiro é uma lista
@@ -133,8 +132,6 @@ public class Tabuleiro {
 			if(newPos >= 0) { // movimento foi válido
 				//System.out.println("Movimento válido encontrado");
 				// atualiza reis se suas posições tiverem sido modificadas
-				this.rei1Pos = pos == this.rei1Pos ? newPos : pos; 
-				this.rei2Pos = pos == this.rei2Pos ? newPos : pos;
 				pos = newPos;
 			}else { //não houve um movimento válido
 				if(pos == 12 && (this.tabuleiro[originalPos] == 'c'
@@ -155,12 +152,12 @@ public class Tabuleiro {
 		return true;
 	}
 	
-	public int getRei1Pos() {
-		return rei1Pos;
-	}
-	
-	public int getRei2Pos() {
-		return rei2Pos;
+	public int getPosicaoPeca(char peca) {
+            for (int i=0; i<tabuleiro.length;i++) {
+                if(tabuleiro[i] == peca)
+                    return i;
+            }
+            return -1;
 	}
 	
 	/*
