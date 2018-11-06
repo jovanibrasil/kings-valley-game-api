@@ -65,6 +65,8 @@ public class KingsValleyServerOperations {
 			idsDisponiveis.add(j);
 			idsDisponiveis.add(j + 1);
 			indiceUsuarioPartidaMutexes[i] = new Semaphore(1);
+			indiceUsuarioPartida[j] = -1;
+			indiceUsuarioPartida[j+1] = -1;
 		}
 		this.nomeJogadorMutex = new Semaphore(1);
 		
@@ -197,7 +199,7 @@ public class KingsValleyServerOperations {
 					// e adiciona o player na mesma. 
 					int idOponentePartida = indiceUsuarioPartida[registro.idJogador2];
 					
-					if(idOponentePartida > 0) {
+					if(idOponentePartida >= 0) {
 						partidas[idOponentePartida].setJogador2(idJogador, nome);
 						atualizaIndiceUsuarioPartida(idJogador, idOponentePartida);
 						return registro.idJogador1;

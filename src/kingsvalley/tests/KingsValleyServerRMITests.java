@@ -18,7 +18,7 @@ import kingsvalley.rmi.KingsValleyRMIServerImpl;
 *  
 */
 
-public class KingsValleyServerTests {
+public class KingsValleyServerRMITests {
 
 	private static KingsValleyRMIServerImpl server;
 	
@@ -303,5 +303,5 @@ public class KingsValleyServerTests {
 			e.printStackTrace();
 		}
 	}
-	
+			
 }
