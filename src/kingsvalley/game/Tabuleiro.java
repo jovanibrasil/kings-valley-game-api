@@ -1,7 +1,5 @@
 package kingsvalley.game;
 
-import java.util.Arrays;
-
 /**
 *
 * Implementação da classe tabuleiro. O tabuleiro foi representado como uma lista, tal que

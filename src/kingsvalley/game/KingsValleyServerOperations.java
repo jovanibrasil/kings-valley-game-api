@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import org.omg.CORBA.PUBLIC_MEMBER;
-
 import kingsvalley.enums.Direcao;
 
 /**
