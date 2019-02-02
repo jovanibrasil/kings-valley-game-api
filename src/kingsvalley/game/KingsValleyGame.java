@@ -276,7 +276,9 @@ public class KingsValleyGame {
 	 *		7 - diagonal direita superior 
 	 *
 	 * */
-	public int movePeca(int idJogador, int lin, int col, int dir) {
+	public int movePeca(int idJogador, int lin, int col, Direcao direcao) {
+		
+		int dir = direcao.ordinal();			
 		
 		//int dir = direcao.ordinal();
 		int pos = (lin * 5) + col;
@@ -299,7 +301,7 @@ public class KingsValleyGame {
 			return -5; // Violação, erro código 0
 		}
 
-		System.out.println("Move peça ["+lin+", "+col+"] na direção "+Direcao.getDirecao(dir));
+		System.out.println("Move peça ["+lin+", "+col+"] na direção "+direcao);
 		
 		// Regra: Primeira jogada é o movimento de um soldado.	
 		if(this.firstPlay) {

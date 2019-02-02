@@ -413,7 +413,7 @@ public class KingsValleyServerOperations {
 					if (partida.ehPartidaEncerrada())
 						ret = 2; // teve sua partida encerrada
 					else
-						ret = partida.movePeca(idJogador, lin, col, dir);
+						ret = partida.movePeca(idJogador, lin, col, Direcao.getDirecao(dir));
 					indiceUsuarioPartidaMutexes[idJogador].release();
 					return ret;
 				}
